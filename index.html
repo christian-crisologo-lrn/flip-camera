@@ -25,93 +25,30 @@
 <body class="bg-gray-100 flex items-center justify-center h-screen">
     <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
         <h1 class="text-2xl font-bold mb-4">Select Your Video Camera</h1>
+        <div class="mt-4">
+            <select id="camera-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg rounded-md">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
         <form>
             <div class="container p-5 align-center">
-                <div class="mt-2 border ">
-                    <b>Your Cam:</b><br>
-                    <video id="camera-stream" class=""></video>
+                <div class="mt-2 border align-center p-5">
+                    <div class="flex justify-center items-center">
+                        <video id="camera-stream" class=""></video>
+                    </div>
                 </div>
                 <div class="mt-4">
+                    <button id="capture-camera" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Start Record 
+                    </button>
                     <button disabled id="flip-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
                         Flip Camera
                     </button>
-                    <button id="capture-camera" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
-                        Take photo
-                    </button>
                 </div>
-                <div class="mt-3">
-                    <b>Output:</b>
-                    <br>
-                    <canvas id="canvas" class="bg-light shadow border border-5 border-success">
-                    </canvas>
-                </div>
-            </div>
+                
         </form>
     </div>
     </div>
-    <script>
-        // camera stream video element
-        let on_stream_video = document.querySelector('#camera-stream');
-        // flip button element
-        let flipBtn = document.querySelector('#flip-btn');
-
-        // default user media options
-        let constraints = { audio: false, video: true }
-        let shouldFaceUser = true;
-
-        // check whether we can use facingMode
-        let supports = navigator.mediaDevices.getSupportedConstraints();
-        if( supports['facingMode'] === true ) {
-            flipBtn.disabled = false;
-        }
-
-        let stream = null;
-
-        function capture() {
-            constraints.video = {
-                width: {
-                min: 192,
-                ideal: 192,
-                max: 192,
-            },
-            height: {
-                min: 192,
-                ideal: 192,
-                max: 192
-            },
-            facingMode: shouldFaceUser ? 'user' : 'environment'
-            }
-            navigator.mediaDevices.getUserMedia(constraints)
-            .then(function(mediaStream) {
-                stream  = mediaStream;
-                on_stream_video.srcObject = stream;
-                on_stream_video.play();
-            })
-            .catch(function(err) {
-                console.log(err)
-            });
-        }
-
-        flipBtn.addEventListener('click', function(){
-            if( stream == null ) return
-            // we need to flip, stop everything
-            stream.getTracks().forEach(t => {
-            t.stop();
-            });
-            // toggle / flip
-            shouldFaceUser = !shouldFaceUser;
-            capture();
-        })
-
-        capture();
-
-        document.getElementById("capture-camera").addEventListener("click", function() {
-            // Elements for taking the snapshot
-            const video = document.querySelector('video');
-            canvas.width = video.videoWidth;
-            canvas.height = video.videoHeight;
-            canvas.getContext('2d').drawImage(video, 0, 0);
-        });
-    </script>
+    <script  src="script.js" ></script>
 </body>
 </html>
