@@ -124,7 +124,7 @@ const VideoContainer: React.FC = () => {
                     >
                         {isRecording ? 'Stop Recording' : 'Start Recording'}
                     </button>
-                    {cameraOptions.length > 1 && (
+                    {cameraOptions.length === 2 && (
                         <button
                             onClick={() => {
                                 setShouldFaceUser(!shouldFaceUser);
@@ -138,6 +138,12 @@ const VideoContainer: React.FC = () => {
                     {cameraOptions.length > 2 && (
                         <select
                             id="camera-select"
+                            onChange={(e) => {
+                                const selectedCamera = cameraOptions.find(
+                                    (camera) => camera.value === e.target.value,
+                                );
+                                setCameraSelected(selectedCamera);
+                            }}
                             className="mt-1 block w-1/2 pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg rounded-md"
                         >
                             {cameraOptions.map((camera: CameraOption) => (
