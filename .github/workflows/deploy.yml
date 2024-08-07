@@ -24,6 +24,11 @@ jobs:
       - name: Build project
         run: npm run build
 
+      - name: Configure Git
+        run: |
+          git config --global user.email "christian.crisologo@learnosity.com"
+          git config --global user.name "Christian Crisologo"
+
       - name: Deploy to GitHub Pages
         run: npm run deploy
         env:
