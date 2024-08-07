@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Camera Selection</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+        video  {
+            width: 192px;
+            height: 192px;
+            background: rgba(0,0,0,0.2);
+            -webkit-transform: scaleX(-1); /* mirror effect while using front cam */
+            transform: scaleX(-1);         /* mirror effect while using front cam */
+        }
+
+        #canvas  {
+            width: 192px;
+            height: 192px;
+            -webkit-transform: scaleX(-1); /* mirror effect while using front cam */
+            transform: scaleX(-1);         /* mirror effect while using front cam */
+        }
+    </style>
+</head>
+<body class="bg-gray-100 flex items-center justify-center h-screen">
+    <div class="bg-white p-8 rounded shadow-md w-full max-w-sm">
+        <h1 class="text-2xl font-bold mb-4">Select Your Video Camera</h1>
+        <div class="mt-4">
+            <select id="camera-select" class="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-lg rounded-md">
+                <!-- Options will be populated dynamically -->
+            </select>
+        </div>
+        <form>
+            <div class="container p-5 align-center">
+                <div class="mt-2 border align-center p-5">
+                    <div class="flex justify-center items-center">
+                        <video id="camera-stream" class=""></video>
+                    </div>
+                </div>
+                <div class="mt-4">
+                    <button id="record-btn" class="bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-4 rounded">
+                        Start Record 
+                    </button>
+                    <button disabled id="flip-btn" class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded">
+                        Flip Camera
+                    </button>
+                </div>
+                
+        </form>
+    </div>
+    </div>
+    <script  src="script.js" ></script>
+</body>
+</html>

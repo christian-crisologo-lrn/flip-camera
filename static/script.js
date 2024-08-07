@@ -16,7 +16,7 @@ async function getVideoCameras() {
  let cameraStreamElem = document.querySelector('#camera-stream');
  // flip button element
  let flipBtn = document.querySelector('#flip-btn');
-
+const recordBtn = document.querySelector('#record-btn');
  // default user media options
  let shouldFaceUser = true;
 
@@ -39,6 +39,7 @@ async function getVideoCameras() {
 getVideoCameras().then(videoDevices => {
     videoDevices.forEach(device => {
         const option = document.createElement('option');
+
         option.value = device.deviceId;
         option.text = device.label || `Camera ${selectElement.length + 1}`;
         selectElement.appendChild(option);
@@ -93,4 +94,12 @@ getVideoCameras().then(videoDevices => {
 
  recordVideo();
 
- document.getElementById("capture-camera").addEventListener("click", () => { recordVideo(); });
+recordBtn.addEventListener("click", (e) => { 
+    e.stopPropagation();
+    e.preventDefault
+    recordVideo(); 
+});
+flipBtn.addEventListener("click", () => { 
+    shouldFaceUser = !shouldFaceUser;
+    recordVideo();
+ });
