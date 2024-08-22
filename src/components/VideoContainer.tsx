@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
-import { getCameraOptions } from '../utils/media';
+import { canFlipCamera, getCameraOptions } from '../utils/media';
 
 interface CameraOption {
     value: string;
@@ -16,41 +16,51 @@ const VideoContainer: React.FC = () => {
     const [shouldFaceUser, setShouldFaceUser] = useState<boolean>(true);
     const [cameraOptions, setCameraOptions] = useState<CameraOption[]>([]);
 
+    const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
+
     useEffect(() => {
         const getMediaStream = async () => {
-            let constraints: MediaStreamConstraints = {
+            let constraints: any = {
                 audio: false,
-                video: true,
+                video: {
+                    width: { min: 480, ideal: 640, max: 960 },
+                    height: { min: 480, ideal: 480, max: 480 },
+                    facingMode: 'user'
+                }
             };
 
             if (videoRef.current) {
                 try {
+                    // If camera is flipped, change the facing mode
+                    constraints.video.facingMode = shouldFaceUser ? 'user' : 'environment';
+                    constraints.video.width.min = videoRef.current.clientWidth || 480;
+                    constraints.video.height.min = videoRef.current.clientHeight || 480;
+
                     const stream = await navigator.mediaDevices.getUserMedia(
                         constraints,
                     );
-                    const videoTrack = stream.getVideoTracks()[0];
-                    const settings = videoTrack.getSettings();
+                    // const videoTrack = stream.getVideoTracks()[0];
+                    // const settings = videoTrack.getSettings();
 
-                    const videoWidth =
-                        settings.width || videoRef.current.clientWidth || 192;
-                    const videoHeight =
-                        settings.height || videoRef.current.clientHeight || 192;
+                    // const videoWidth =
+                    //     settings.width || videoRef.current.clientWidth || 192;
+                    // const videoHeight =
+                    //     settings.height || videoRef.current.clientHeight || 192;
 
-                    constraints.video = {
-                        deviceId: { exact: cameraSelected?.value! },
-                        facingMode: shouldFaceUser ? 'user' : 'environment',
-                        width: {
-                            min: videoWidth,
-                        },
-                        height: {
-                            min: videoHeight,
-                        },
-                    };
+                    // constraints.video = {
+                    //     deviceId: { exact: cameraSelected?.value! },
+                    //     facingMode: shouldFaceUser ? 'user' : 'environment',
+                    //     width: {
+                    //         min: videoWidth,
+                    //     },
+                    //     height: {
+                    //         min: videoHeight,
+                    //     },
+                    // };
 
                     // Apply the updated constraints
-                    const updatedStream =
-                        await navigator.mediaDevices.getUserMedia(constraints);
-                    videoRef.current.srcObject = updatedStream;
+
+                    videoRef.current.srcObject = stream;
                     videoRef.current.play();
                 } catch (error) {
                     console.error('Error accessing media devices.', error);
@@ -58,7 +68,7 @@ const VideoContainer: React.FC = () => {
             }
         };
 
-        if (cameraSelected && videoRef.current) {
+        if (videoRef.current) {
             getMediaStream();
         }
     }, [cameraSelected]);
@@ -83,12 +93,9 @@ const VideoContainer: React.FC = () => {
     };
 
     useEffect(() => {
-        const fetchCameraOptions = async () => {
-            const options = await getCameraOptions();
-            setCameraOptions(options);
-        };
-
-        fetchCameraOptions();
+        canFlipCamera().then((canFlip) => {
+            setShowFlipCamera(canFlip);
+        });
     }, []);
 
     useEffect(() => {
@@ -97,11 +104,17 @@ const VideoContainer: React.FC = () => {
         }
     }, [cameraOptions]);
 
+
+    const toggleCamera = () => {
+        setShouldFaceUser(prevState => !prevState);
+    };
+
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
         { 'bg-blue-500 hover:bg-blue-600': !isRecording },
         'mt-4 text-white font-bold py-2 px-4 rounded',
     );
+
 
     return (
         <div className="m-1">
@@ -135,7 +148,8 @@ const VideoContainer: React.FC = () => {
                         </button>
                     )}
 
-                    {cameraOptions.length > 2 && (
+
+                    {/* {cameraOptions.length > 2 && (
                         <select
                             id="camera-select"
                             onChange={(e) => {
@@ -152,7 +166,15 @@ const VideoContainer: React.FC = () => {
                                 </option>
                             ))}
                         </select>
-                    )}
+                    )} */}
+
+                    {showFlipCamera && <button
+                        onClick={toggleCamera}
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                    >
+                        Flip Camera {shouldFaceUser ? 'User' : 'Environment'}
+                    </button>
+                    }
                 </div>
             </div>
         </div>
