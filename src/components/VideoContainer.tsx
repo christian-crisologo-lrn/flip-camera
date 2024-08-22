@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
-import { canFlipCamera, getCameraOptions } from '../utils/media';
+import { canFlipCamera } from '../utils/media';
 
 interface CameraOption {
     value: string;
@@ -14,8 +14,6 @@ const VideoContainer: React.FC = () => {
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [cameraSelected, setCameraSelected] = useState<CameraOption>();
     const [shouldFaceUser, setShouldFaceUser] = useState<boolean>(true);
-    const [cameraOptions, setCameraOptions] = useState<CameraOption[]>([]);
-
     const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
 
     useEffect(() => {
@@ -98,12 +96,6 @@ const VideoContainer: React.FC = () => {
         });
     }, []);
 
-    useEffect(() => {
-        if (cameraOptions.length > 0) {
-            setCameraSelected(cameraOptions[0]);
-        }
-    }, [cameraOptions]);
-
 
     const toggleCamera = () => {
         setShouldFaceUser(prevState => !prevState);
@@ -137,16 +129,6 @@ const VideoContainer: React.FC = () => {
                     >
                         {isRecording ? 'Stop Recording' : 'Start Recording'}
                     </button>
-                    {cameraOptions.length === 2 && (
-                        <button
-                            onClick={() => {
-                                setShouldFaceUser(!shouldFaceUser);
-                            }}
-                            className="'mt-4 text-white font-bold py-2 px-4 rounded',"
-                        >
-                            Flip Camera
-                        </button>
-                    )}
 
 
                     {/* {cameraOptions.length > 2 && (
