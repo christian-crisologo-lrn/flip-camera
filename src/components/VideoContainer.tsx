@@ -3,16 +3,11 @@ import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
 import { canFlipCamera } from '../utils/media';
 
-interface CameraOption {
-    value: string;
-    text: string;
-}
 
 const VideoContainer: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
-    const [cameraSelected, setCameraSelected] = useState<CameraOption>();
     const [shouldFaceUser, setShouldFaceUser] = useState<boolean>(true);
     const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
 
@@ -69,7 +64,7 @@ const VideoContainer: React.FC = () => {
         if (videoRef.current) {
             getMediaStream();
         }
-    }, [cameraSelected]);
+    }, [shouldFaceUser]);
 
     const startRecording = () => {
         if (videoRef.current && videoRef.current.srcObject) {
