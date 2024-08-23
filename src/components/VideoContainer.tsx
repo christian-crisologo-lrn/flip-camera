@@ -11,6 +11,8 @@ const VideoContainer: React.FC = () => {
     const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
     const [activeStream, setActiveStream] = useState<any>(null);
     const [streamStatus, setStreamStatus] = useState<string>('');
+    const [isLoading, setIsLoading] = useState<boolean>(true);
+    const [isPlaying, setIsPlaying] = useState<boolean>(true);
 
     useEffect(() => {
         const getMediaStream = () => {
@@ -36,11 +38,13 @@ const VideoContainer: React.FC = () => {
                         videoRef.current!.srcObject = stream;
                         videoRef.current!.play();
                         setActiveStream(stream);
-                        setStreamStatus('Media stream ready!');
+                        setStreamStatus('streaming...');
+                        setIsLoading(false);
                     })
                     .catch(error => {
                         console.error('Error accessing media devices.', error);
                         setStreamStatus('Error accessing media devices.');
+                        setIsLoading(false);
                     });
             }
         };
@@ -79,19 +83,36 @@ const VideoContainer: React.FC = () => {
         setShouldFaceUser(prevState => !prevState);
     };
 
+    const playVideo = () => {
+        if (videoRef.current) {
+            videoRef.current.play();
+            setIsPlaying(true);
+        }
+    };
+
+    const pauseVideo = () => {
+        if (videoRef.current) {
+            videoRef.current.pause();
+            setIsPlaying(false);
+        }
+    };
+
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
         { 'bg-blue-500 hover:bg-blue-600': !isRecording },
-        'mt-4 text-white font-bold py-2 px-4 rounded',
+        'mt-2 text-white font-bold py-2 px-4 rounded min-w-[250px]',
     );
 
     return (
-        <div className="m-1">
-            <h1 className="text-2xl font-bold mb-4 text-black">Flip Camera</h1>
-
-            <div className="container p-5 align-center">
-                <div className="mt-2 border align-center p-5">
-                    <div className="flex justify-center items-center">
+        <div className="container">
+            <div className="p-4 align-center">
+                <div className="mt-2 border align-center p-2">
+                    <div className="flex justify-center items-center relative">
+                        {isLoading && (
+                            <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-10">
+                                <span className="text-white text-xl">Loading...</span>
+                            </div>
+                        )}
                         <video
                             ref={videoRef}
                             id="camera-stream"
@@ -105,13 +126,21 @@ const VideoContainer: React.FC = () => {
                     </div>
                 </div>
                 <div className="flex mt-4 m-2 flex-col">
-                    <button
-                        onClick={isRecording ? stopRecording : startRecording}
-                        className={recordBtnCls}
-                    >
-                        {isRecording ? 'Stop Recording' : 'Start Recording'}
-                    </button>
+                    <div className="flex my-2 justify-between">
+                        <button
+                            onClick={isPlaying ? pauseVideo : playVideo}
+                            className="mt-2 px-4 py-2 bg-green-500 text-white rounded-md min-w-[150px]"
+                        >
+                            {isPlaying ? 'Pause' : 'Play'}
+                        </button>
+                        <button
+                            onClick={isRecording ? stopRecording : startRecording}
+                            className={recordBtnCls}
+                        >
+                            {isRecording ? 'Stop Recording' : 'Start Recording'}
+                        </button>
 
+                    </div>
                     {
                         showFlipCamera && <button
                             onClick={toggleCamera}
@@ -124,9 +153,7 @@ const VideoContainer: React.FC = () => {
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Stream status : {streamStatus}
                     </div>
-                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Current Camera: {shouldFaceUser ? 'User (Front)' : 'Environment (Back)'}
-                    </div>
+
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         ActiveStream :{activeStream && activeStream.getVideoTracks()[0].label}
                     </div>
