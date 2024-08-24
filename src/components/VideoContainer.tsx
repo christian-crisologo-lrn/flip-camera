@@ -30,24 +30,23 @@ const VideoContainer: React.FC = () => {
 
             if (videoRef.current) {
                 // If camera is flipped, change the facing mode
+                // constraints.video.facingMode = shouldFaceUser ? 'user' : 'environment';
+                // constraints.video.width.min = videoRef.current.clientWidth || 480;
+                // constraints.video.height.min = videoRef.current.clientHeight || 480;
                 constraints.video.facingMode = shouldFaceUser ? 'user' : 'environment';
                 constraints.video.width.min = videoRef.current.clientWidth || 480;
                 constraints.video.height.min = videoRef.current.clientHeight || 480;
-                setStreamStatus('Video constraints updated and connecting... ' + ' == Constraints: ' + JSON.stringify(constraints));
+
                 navigator.mediaDevices.getUserMedia(constraints)
                     .then(stream => {
-                        if (videoRef.current) {
-                            videoRef.current.srcObject = stream;
-                            videoRef.current.play();
-                        }
+                        videoRef.current!.srcObject = stream;
+                        videoRef.current!.play();
                         setActiveStream(stream);
-                        setStreamStatus('streaming...');
-                        setIsLoading(false);
+                        setStreamStatus('Media stream ready!');
                     })
                     .catch(error => {
                         console.error('Error accessing media devices.', error);
-                        setStreamStatus('Error accessing media devices. ' + JSON.stringify(error) + ' == Constraints: ' + JSON.stringify(constraints));
-                        setIsLoading(false);
+                        setStreamStatus('Error accessing media devices.');
                     });
             }
         };
@@ -55,7 +54,7 @@ const VideoContainer: React.FC = () => {
         if (videoRef.current) {
             getMediaStream();
         }
-    }, [shouldFaceUser, videoRef.current]);
+    }, []);
 
     const startRecording = () => {
         if (videoRef.current && videoRef.current.srcObject) {
@@ -100,21 +99,21 @@ const VideoContainer: React.FC = () => {
         }
     };
 
-    useEffect(() => {
-        if (videoRef.current) {
-            videoRef.current.onwaiting = () => setVideoPlayingStatus('buffering');
-            videoRef.current.onplaying = () => setVideoPlayingStatus('playing');
-            videoRef.current.onpause = () => setVideoPlayingStatus('paused');
-            videoRef.current.onended = () => setVideoPlayingStatus('ended');
-            videoRef.current.onerror = () => setVideoPlayingStatus('error');
-            videoRef.current.onloadeddata = () => setVideoPlayingStatus('data loaded');
-            videoRef.current.oncanplay = () => setVideoPlayingStatus('can play');
-            videoRef.current.oncanplaythrough = () => setVideoPlayingStatus('can play through');
-            videoRef.current.onstalled = () => setVideoPlayingStatus('stalled');
-            videoRef.current.onseeked = () => setVideoPlayingStatus('seeked');
-            videoRef.current.onseeking = () => setVideoPlayingStatus('seeking');
-        }
-    }, []);
+    // useEffect(() => {
+    //     if (videoRef.current) {
+    //         videoRef.current.onwaiting = () => setVideoPlayingStatus('buffering');
+    //         videoRef.current.onplaying = () => setVideoPlayingStatus('playing');
+    //         videoRef.current.onpause = () => setVideoPlayingStatus('paused');
+    //         videoRef.current.onended = () => setVideoPlayingStatus('ended');
+    //         videoRef.current.onerror = () => setVideoPlayingStatus('error');
+    //         videoRef.current.onloadeddata = () => setVideoPlayingStatus('data loaded');
+    //         videoRef.current.oncanplay = () => setVideoPlayingStatus('can play');
+    //         videoRef.current.oncanplaythrough = () => setVideoPlayingStatus('can play through');
+    //         videoRef.current.onstalled = () => setVideoPlayingStatus('stalled');
+    //         videoRef.current.onseeked = () => setVideoPlayingStatus('seeked');
+    //         videoRef.current.onseeking = () => setVideoPlayingStatus('seeking');
+    //     }
+    // }, []);
 
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
