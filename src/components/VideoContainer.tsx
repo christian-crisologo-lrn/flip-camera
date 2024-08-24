@@ -34,7 +34,7 @@ const VideoContainer: React.FC = () => {
                 constraints.video.facingMode = shouldFaceUser ? 'user' : 'environment';
                 constraints.video.width.min = videoRef.current.clientWidth || 480;
                 constraints.video.height.min = videoRef.current.clientHeight || 480;
-                setStreamStatus('Video constraints updated and connecting...');
+                setStreamStatus('Video constraints updated and connecting... ' + '\\n == Constraints: ' + JSON.stringify(constraints));
                 navigator.mediaDevices.getUserMedia(constraints)
                     .then(stream => {
                         videoRef.current!.srcObject = stream;
@@ -200,14 +200,14 @@ const VideoContainer: React.FC = () => {
                 }
 
                 <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                    Stream status : {streamStatus}, videoRef {videoRef?.current?.toString() || 'null'}
+                    Stream status : [{streamStatus}]
                 </div>
 
                 <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                    ActiveStream :{activeStream && activeStream.getVideoTracks()[0].label}
+                    ActiveStream : [{activeStream && activeStream.getVideoTracks()[0].label}]
                 </div>
                 <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                    Stream status :{videoPlayingStatus}
+                    Video status : [{videoPlayingStatus}]
                 </div>
             </div>
         </div>
