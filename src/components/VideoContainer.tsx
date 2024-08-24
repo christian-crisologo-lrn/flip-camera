@@ -52,7 +52,7 @@ const VideoContainer: React.FC = () => {
         if (videoRef.current) {
             getMediaStream();
         }
-    }, [shouldFaceUser]);
+    }, [shouldFaceUser, videoRef.current]);
 
     const startRecording = () => {
         if (videoRef.current && videoRef.current.srcObject) {
@@ -151,7 +151,7 @@ const VideoContainer: React.FC = () => {
                     }
 
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Stream status : {streamStatus}
+                        Stream status : {streamStatus}, videoRef {videoRef?.current?.toString() || 'null'}
                     </div>
 
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
