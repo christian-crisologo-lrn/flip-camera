@@ -14,6 +14,8 @@ const VideoContainer: React.FC = () => {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isPlaying, setIsPlaying] = useState<boolean>(true);
     const [videoPlayingStatus, setVideoPlayingStatus] = useState<string>('');
+    const [canPlayerCameraStatus, setCanPlayerCameraStatus] = useState<string>('');
+
 
     useEffect(() => {
         const getMediaStream = () => {
@@ -55,7 +57,7 @@ const VideoContainer: React.FC = () => {
         if (videoRef.current) {
             getMediaStream();
         }
-    }, [videoRef.current]);
+    }, [videoRef.current, shouldFaceUser]);
 
     const startRecording = () => {
         if (videoRef.current && videoRef.current.srcObject) {
@@ -115,6 +117,29 @@ const VideoContainer: React.FC = () => {
             videoRef.current.onseeking = () => setVideoPlayingStatus('seeking');
         }
     }, []);
+
+
+    useEffect(() => {
+        navigator.mediaDevices.enumerateDevices()
+            .then(devices => {
+                const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+
+                setCanPlayerCameraStatus('Checking camera capabilities... ' + JSON.stringify(videoInputDevices));
+
+                return Promise.all(videoInputDevices.map(device => {
+                    return navigator.mediaDevices.getUserMedia({
+                        video: { deviceId: device.deviceId }
+                    }).then(stream => {
+                        const track = stream.getVideoTracks()[0];
+                        const capabilities = track.getCapabilities();
+                        track.stop();
+
+                        setCanPlayerCameraStatus('Can play camera: ' + capabilities.facingMode);
+
+                    }).catch(() => { setCanPlayerCameraStatus('Error accessing camera capabilities.'); });
+                }));
+            });
+    }, [])
 
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
@@ -177,6 +202,9 @@ const VideoContainer: React.FC = () => {
                 </div>
                 <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                     Video status : [{videoPlayingStatus}]
+                </div>
+                <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                    Can play camera : [{canPlayerCameraStatus}]
                 </div>
             </div>
         </div>
