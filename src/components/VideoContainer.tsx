@@ -33,7 +33,7 @@ const VideoContainer: React.FC = () => {
                 constraints.video.facingMode = shouldFaceUser ? 'user' : 'environment';
                 constraints.video.width.min = videoRef.current.clientWidth || 480;
                 constraints.video.height.min = videoRef.current.clientHeight || 480;
-                setStreamStatus('Video constraints updated and connecting... ' + '\\n == Constraints: ' + JSON.stringify(constraints));
+                setStreamStatus('Video constraints updated and connecting... ' + ' == Constraints: ' + JSON.stringify(constraints));
                 navigator.mediaDevices.getUserMedia(constraints)
                     .then(stream => {
                         if (videoRef.current) {
@@ -46,7 +46,7 @@ const VideoContainer: React.FC = () => {
                     })
                     .catch(error => {
                         console.error('Error accessing media devices.', error);
-                        setStreamStatus('Error accessing media devices. ' + JSON.stringify(error));
+                        setStreamStatus('Error accessing media devices. ' + JSON.stringify(error) + ' == Constraints: ' + JSON.stringify(constraints));
                         setIsLoading(false);
                     });
             }
