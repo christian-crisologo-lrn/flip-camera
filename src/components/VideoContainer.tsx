@@ -24,8 +24,7 @@ const VideoContainer: React.FC = () => {
                 audio: false,
                 video: {
                     width: { min: 480, ideal: 640, max: 960 },
-                    height: { min: 480, ideal: 480, max: 480 },
-                    facingMode: 'user'
+                    height: { min: 480, ideal: 480, max: 480 }
                 }
             };
 
@@ -37,8 +36,10 @@ const VideoContainer: React.FC = () => {
                 setStreamStatus('Video constraints updated and connecting... ' + '\\n == Constraints: ' + JSON.stringify(constraints));
                 navigator.mediaDevices.getUserMedia(constraints)
                     .then(stream => {
-                        videoRef.current!.srcObject = stream;
-                        videoRef.current!.play();
+                        if (videoRef.current) {
+                            videoRef.current.srcObject = stream;
+                            videoRef.current.play();
+                        }
                         setActiveStream(stream);
                         setStreamStatus('streaming...');
                         setIsLoading(false);
@@ -101,49 +102,17 @@ const VideoContainer: React.FC = () => {
 
     useEffect(() => {
         if (videoRef.current) {
-            videoRef.current.onwaiting = () => {
-                setVideoPlayingStatus('buffering');
-            };
-
-            videoRef.current.onplaying = () => {
-                setVideoPlayingStatus('playing');
-            };
-
-            videoRef.current.onpause = () => {
-                setVideoPlayingStatus('paused');
-            };
-
-            videoRef.current.onended = () => {
-                setVideoPlayingStatus('ended');
-            };
-
-            videoRef.current.onerror = () => {
-                setVideoPlayingStatus('error');
-            };
-
-            videoRef.current.onloadeddata = () => {
-                setVideoPlayingStatus('data loaded');
-            };
-
-            videoRef.current.oncanplay = () => {
-                setVideoPlayingStatus('can play');
-            };
-
-            videoRef.current.oncanplaythrough = () => {
-                setVideoPlayingStatus('can play through');
-            };
-
-            videoRef.current.onstalled = () => {
-                setVideoPlayingStatus('stalled');
-            };
-
-            videoRef.current.onseeked = () => {
-                setVideoPlayingStatus('seeked');
-            };
-
-            videoRef.current.onseeking = () => {
-                setVideoPlayingStatus('seeking');
-            };
+            videoRef.current.onwaiting = () => setVideoPlayingStatus('buffering');
+            videoRef.current.onplaying = () => setVideoPlayingStatus('playing');
+            videoRef.current.onpause = () => setVideoPlayingStatus('paused');
+            videoRef.current.onended = () => setVideoPlayingStatus('ended');
+            videoRef.current.onerror = () => setVideoPlayingStatus('error');
+            videoRef.current.onloadeddata = () => setVideoPlayingStatus('data loaded');
+            videoRef.current.oncanplay = () => setVideoPlayingStatus('can play');
+            videoRef.current.oncanplaythrough = () => setVideoPlayingStatus('can play through');
+            videoRef.current.onstalled = () => setVideoPlayingStatus('stalled');
+            videoRef.current.onseeked = () => setVideoPlayingStatus('seeked');
+            videoRef.current.onseeking = () => setVideoPlayingStatus('seeking');
         }
     }, []);
 
@@ -170,7 +139,6 @@ const VideoContainer: React.FC = () => {
                         height={480}
                         autoPlay={true}
                         playsInline={true}
-                        crossOrigin="anonymous"
                     ></video>
                 </div>
             </div>
