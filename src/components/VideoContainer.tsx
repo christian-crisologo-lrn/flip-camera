@@ -55,7 +55,7 @@ const VideoContainer: React.FC = () => {
         if (videoRef.current) {
             getMediaStream();
         }
-    }, [shouldFaceUser]);
+    }, [shouldFaceUser, videoRef.current]);
 
     const startRecording = () => {
         if (videoRef.current && videoRef.current.srcObject) {
