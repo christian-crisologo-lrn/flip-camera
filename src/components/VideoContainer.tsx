@@ -46,7 +46,7 @@ const VideoContainer: React.FC = () => {
                     })
                     .catch(error => {
                         console.error('Error accessing media devices.', error);
-                        setStreamStatus('Error accessing media devices.');
+                        setStreamStatus('Error accessing media devices. ' + JSON.stringify(error));
                         setIsLoading(false);
                     });
             }
@@ -139,6 +139,7 @@ const VideoContainer: React.FC = () => {
                         height={480}
                         autoPlay={true}
                         playsInline={true}
+                        crossOrigin="anonymous"
                     ></video>
                 </div>
             </div>
