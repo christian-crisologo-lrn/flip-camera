@@ -7,14 +7,14 @@ const VideoContainer: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
-    const [facingMode, setFacingMode] = useState<boolean>(true);
-    const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
+    // const [facingMode, setFacingMode] = useState<boolean>(true);
+    // const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isPlaying, setIsPlaying] = useState<boolean>(true);
     const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
     const [videoPlayingStatus, setVideoPlayingStatus] = useState<string>('idle');
     const [mediaDevice, setMediaDevice] = useState<any>(null);
-    const [faceModes, setFaceModes] = useState<any>([]);
+    const [cameraDevices, setCameraDevices] = useState<any>([]);
 
     const setVideoStatus = (status: string) => {
         setVideoPlayingStatus(status);
@@ -23,7 +23,14 @@ const VideoContainer: React.FC = () => {
 
     useEffect(() => {
         if (mediaDevice === null) {
-            setMediaDevice(new MediaDevice());
+            let _mediaDevice = new MediaDevice();
+
+            _mediaDevice.getCameraDevices().then((devices: any) => {
+                setCameraDevices(devices);
+            });
+
+            setMediaDevice(_mediaDevice);
+
         }
         return () => {
             // Cleanup media stream on component unmount
@@ -38,12 +45,12 @@ const VideoContainer: React.FC = () => {
         }
 
         if (videoRef.current && mediaDevice) {
-            mediaDevice.canToggleVideoFacingMode().then((canFlip: boolean) => {
-                setShowFlipCamera(canFlip);
-            });
-            mediaDevice.getVideoFacingModes().then((modes: any) => {
-                setFaceModes(modes);
-            });
+            // mediaDevice.canToggleVideoFacingMode().then((canFlip: boolean) => {
+            //     setShowFlipCamera(canFlip);
+            // });
+            // mediaDevice.getVideoFacingModes().then((modes: any) => {
+            //     setFaceModes(modes);
+            // });
             // setShowFlipCamera(true);
 
             setIsLoading(true);
@@ -123,14 +130,14 @@ const VideoContainer: React.FC = () => {
         }
     }
 
-    const toggleCamera = () => {
-        setIsLoading(true);
-        mediaDevice.toggleVideoFacingMode().then((stream: MediaStream) => {
-            playStreamToVideo(stream);
-            setIsLoading(false);
-            setFacingMode(mediaDevice.getFacingMode());
-        });
-    };
+    // const toggleCamera = () => {
+    //     setIsLoading(true);
+    //     mediaDevice.toggleVideoFacingMode().then((stream: MediaStream) => {
+    //         playStreamToVideo(stream);
+    //         setIsLoading(false);
+    //         setFacingMode(mediaDevice.getFacingMode());
+    //     });
+    // };
 
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
@@ -175,14 +182,14 @@ const VideoContainer: React.FC = () => {
                             {isRecording ? 'Stop Recording' : 'Start Recording'}
                         </button>
                     </div>
-                    {showFlipCamera && (
+                    {/* {showFlipCamera && (
                         <button
                             onClick={toggleCamera}
                             className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
                         >
                             Flip Camera {facingMode ? 'User' : 'Environment'}
                         </button>
-                    )}
+                    )} */}
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         ActiveStream : [{activeStream && activeStream.getVideoTracks()[0].label}]
                     </div>
@@ -190,7 +197,7 @@ const VideoContainer: React.FC = () => {
                         Video status : [{videoPlayingStatus}]
                     </div>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Face modes : [{faceModes.join(', ')}]
+                        Camera Devices : {cameraDevices.map((device: any) => `${device.label}-${device.facingModes}`).join(', ')}
                     </div>
                 </div>
             </div>

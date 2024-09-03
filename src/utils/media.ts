@@ -135,6 +135,62 @@ class MediaDevice {
     getFacingMode() {
         return this.constraints.video.facingMode;
     }
+
+
+    getCameraDevices() {
+        return navigator.mediaDevices.enumerateDevices()
+        .then(devices => {
+            const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+            const facingModes = ['user', 'environment'];
+
+            return Promise.all(videoInputDevices.map(device => {
+                return navigator.mediaDevices.getUserMedia({
+                    video: { deviceId: device.deviceId }
+                }).then(stream => {
+                    const track = stream.getVideoTracks()[0];
+
+                    if (!track) {
+                        return {
+                            deviceId: device.deviceId,
+                            label: device.label,
+                            facingModes: []
+                        };
+                    }
+
+                    const capabilities = track.getCapabilities();
+
+                    // Stop the track to release the camera
+                    track.stop();
+
+                    if (!capabilities.facingMode) {
+                        return {
+                            deviceId: device.deviceId,
+                            label: device.label,
+                            facingModes: []
+                        };
+                    }
+
+                    return {
+                        deviceId: device.deviceId,
+                        label: device.label,
+                        facingModes: capabilities.facingMode.filter((facingMode: string) => facingModes.includes(facingMode))
+                    };
+                }).catch(error => {
+                    console.error('Error accessing media devices:', error);
+                    return {
+                        deviceId: device.deviceId,
+                        label: device.label,
+                        facingModes: []
+                    };
+                });
+            }));
+        })
+        .catch(error => {
+            console.error('Error enumerating devices:', error);
+            return [];
+        });
+    }
+
 }
 
 export default MediaDevice;
