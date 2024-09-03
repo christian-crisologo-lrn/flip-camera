@@ -51,6 +51,27 @@ class MediaDevice {
         return capabilities.facingMode.some((facingMode:string) => facingModes.includes(facingMode));
     }
 
+    getVideoFacingModes() {
+        return this.stream().then(stream => {
+            const track = stream?.getVideoTracks()[0];
+    
+            if (!track) {
+                return [];
+            }
+
+            // don't stream
+            track.stop();
+
+            const capabilities = track.getCapabilities();
+
+            if (!capabilities.facingMode) {
+                return [];
+            }
+    
+            return capabilities.facingMode
+        })
+    }
+
     canToggleVideoFacingMode(callback: Function) {
         return navigator.mediaDevices.enumerateDevices()
             .then(devices => {
@@ -82,16 +103,18 @@ class MediaDevice {
         }
     }
 
-    stream(callback: Function, constraints = {}) {
+    stream(callback: Function | null = null, constraints = {}) {
         this.stopCurrentStream();
         this.constraints = { ...this.constraints, ...constraints };
-
+    
         return navigator.mediaDevices
             .getUserMedia(this.constraints)
             .then((stream) => {
                 this.currentStream = stream;
-                callback && callback(stream);
-
+                if (callback) {
+                    callback(stream);
+                }
+    
                 return stream;
             })
             .catch(this.onUserMediaError);

@@ -14,6 +14,7 @@ const VideoContainer: React.FC = () => {
     const [activeStream, setActiveStream] = useState<MediaStream | null>(null);
     const [videoPlayingStatus, setVideoPlayingStatus] = useState<string>('idle');
     const [mediaDevice, setMediaDevice] = useState<any>(null);
+    const [faceModes, setFaceModes] = useState<any>([]);
 
     const setVideoStatus = (status: string) => {
         setVideoPlayingStatus(status);
@@ -39,6 +40,9 @@ const VideoContainer: React.FC = () => {
         if (videoRef.current && mediaDevice) {
             mediaDevice.canToggleVideoFacingMode().then((canFlip: boolean) => {
                 setShowFlipCamera(canFlip);
+            });
+            mediaDevice.getVideoFacingModes().then((modes: any) => {
+                setFaceModes(modes);
             });
             // setShowFlipCamera(true);
 
@@ -184,6 +188,9 @@ const VideoContainer: React.FC = () => {
                     </div>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Video status : [{videoPlayingStatus}]
+                    </div>
+                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                        Face modes : [{faceModes.join(', ')}]
                     </div>
                 </div>
             </div>
