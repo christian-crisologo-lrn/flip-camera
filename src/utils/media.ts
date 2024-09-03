@@ -64,7 +64,7 @@ class MediaDevice {
                     const videoConstraints = { video: { deviceId: device.deviceId } };
 
                     return navigator.mediaDevices.getUserMedia(videoConstraints)
-                        .then(this.deviceHasFaceMode.bind(this))
+                        .then(stream => this.deviceHasFaceMode(stream))
                         .catch(() => false);
                 }));
             })
