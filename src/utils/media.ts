@@ -1,5 +1,7 @@
 
 function polyfillGetUserMedia() {
+    console.log('MediaDevices - Polyfilling getUserMedia');
+
     if (typeof window === 'undefined') {
         return;
     }
@@ -64,6 +66,7 @@ class MediaDevice {
     videoDevices: [] | any;
 
     constructor() {
+        console.log('MediaDevices - MediaDevice instance created');
         polyfillGetUserMedia();
 
         this.constraints = CONSTRAINTS;
@@ -79,8 +82,10 @@ class MediaDevice {
         console.error('User media error:', err);
     }
 
-    stopStream() {
-        const stream = this.currentStream;
+    stopStream(streamInput: any = null) {
+        console.log('MediaDevices - Stopping stream');
+
+        const stream = streamInput || this.currentStream;
         // stop all tracks
         if (stream) {
             if (stream) {
@@ -104,6 +109,8 @@ class MediaDevice {
     }
 
     stream(callback: Function | null = null, constraints = {}) {
+        console.log('MediaDevices - Starting stream');
+
         const newConstraints = { ...this.constraints, ...constraints };
         // stop all streams before starting a new one
         this.stopStream();
@@ -111,6 +118,7 @@ class MediaDevice {
         return navigator.mediaDevices
             .getUserMedia(newConstraints)
             .then((stream) => {
+                console.log('MediaDevices - Streaming success:', stream);
                 this.currentStream = stream;
                 this.currentDevice = this.getStreamDevice(stream);
                 this.constraints = newConstraints;
@@ -125,6 +133,7 @@ class MediaDevice {
     }
 
     updateFacingMode(facingMode: string) {
+        console.log('MediaDevices - Updating facing mode:', facingMode);
         if (!this.currentStream) {
             console.error('No active stream to update.');
             return Promise.reject('No active stream to update.');
@@ -142,6 +151,8 @@ class MediaDevice {
     }
 
     toggleVideoFacingMode(callback: Function) {
+        console.log('MediaDevices - Toggling video facing mode');
+
         if (this.currentDevice && this.videoDevices.length) {
             const currentFacingMode = this.currentDevice.facingMode;
 
@@ -154,7 +165,7 @@ class MediaDevice {
                         }
                     }
                 });
-
+            console.log('MediaDevices - Toggling device:', device);
             if (device) {
                 return this.stream(callback, { video: { deviceId: device.deviceId } });
             }
@@ -164,7 +175,8 @@ class MediaDevice {
     }
 
     initStream(callback: Function | null = null, constraints = {}) {
-        
+        console.log('MediaDevices - Initializing stream');
+
         if(!this.isSupported()) {
             console.error('getUserMedia is not supported in this browser.');
             return null;
@@ -180,6 +192,8 @@ class MediaDevice {
     }
 
     getCameraDevices() {
+        console.log('MediaDevices - Getting camera devices');
+
         return navigator.mediaDevices.enumerateDevices()
             .then(devices => {
                 const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
@@ -191,7 +205,7 @@ class MediaDevice {
                             const capabilities = track?.getCapabilities();
 
                             // Stop the track to release the camera
-                            track?.stop();
+                            this.stopStream(stream);
 
                             return {
                                 deviceId: device.deviceId,
