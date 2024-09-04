@@ -9,7 +9,7 @@ const VideoContainer: React.FC = () => {
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
     // const [facingMode, setFacingMode] = useState<boolean>(true);
-    // const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
+    const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isPlaying, setIsPlaying] = useState<boolean>(true);
     const [currentStream, setCurrentStream] = useState<MediaStream | null>(null);
@@ -47,6 +47,7 @@ const VideoContainer: React.FC = () => {
             mediaDevice.initStream().then((stream: MediaStream) => {
                 setCameraDevices(mediaDevice.videoDevices);
                 playStreamToVideo(stream);
+                setShowFlipCamera(mediaDevice.canToggleVideoFacingMode);
                 setIsLoading(false);
             }).catch((error: any) => {
                 console.error('Error accessing media devices.', error);
@@ -181,12 +182,15 @@ const VideoContainer: React.FC = () => {
                             {isRecording ? 'Stop Recording' : 'Start Recording'}
                         </button>
                     </div>
-                    <button
-                        onClick={toggleCamera}
-                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
-                    >
-                        Flip Camera
-                    </button>
+                    {
+                        showFlipCamera &&
+                        <button
+                            onClick={toggleCamera}
+                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                        >
+                            Flip Camera
+                        </button>
+                    }
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         currentStream : [{currentStream && currentStream?.getVideoTracks()[0]?.label || 'No stream'}]
                     </div>

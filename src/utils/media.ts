@@ -88,6 +88,7 @@ class MediaDevice {
     currentStream: any;
     currentDevice: MediaDeviceInfo | null | undefined;
     videoDevices: [] | any;
+    canToggleVideoFacingMode: boolean = false;
 
     constructor() {
         console.log('MediaDevices - MediaDevice instance created');
@@ -175,33 +176,21 @@ class MediaDevice {
         });
     }
 
+
+
+
     toggleVideoFacingMode(callback: Function | null = null) {
         console.log('MediaDevices - Toggling video facing mode : ' + this.videoDevices.length);
 
         if (this.currentDevice && this.videoDevices.length) {
-            const device = this.videoDevices
-                .find((device: any) => {
-                    if (device.deviceId !== this.currentDevice?.deviceId) {
-                        return true;
-                        // if (!device.facingMode.includes(currentFacingMode)) {
-                        //     return true;
-                        // }
-                    }
-                });
+            const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
+        
+            console.log('MediaDevices - Toggling facing mode: ' + facingMode);
 
-            console.log('MediaDevices - Toggling device: ' + JSON.stringify(device));
-
-            if (device) {
-                const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
-         
-                console.log('MediaDevices - Toggling facing mode: ' + facingMode);
-
-                return this.stream(callback, { video: { facingMode: { exact : facingMode } }});
-            }
-        };
-
-
-        return Promise.resolve();
+            return this.stream(callback, { video: { facingMode: { exact : facingMode } }});
+        } else {
+            return Promise.resolve();
+        }
     }
 
     initStream(callback: Function | null = null, constraints = {}) {
@@ -218,7 +207,29 @@ class MediaDevice {
 
                 return devices;
             })
+            .then((devices: any) => this.checkToggleVideoFacingModeSupport(devices))
+            .then((result: boolean) => {
+                this.canToggleVideoFacingMode = result;
+            })
             .then(() => this.stream(callback, constraints));
+    }
+
+    checkToggleVideoFacingModeSupport(videoDevices: any[]) {
+        if ( videoDevices.length > 1 ) {
+            return navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode : { exact: 'environment'}} })
+                .then(() => {
+                    console.log('MediaDevices - Device supports Environment facingMode');
+                    return true;
+                })
+                .catch(() => {
+                    console.log('MediaDevices - Device does not support Environment facingMode');
+                    return false;
+                });
+        } else {
+            console.log('MediaDevices - Device only support single facingMode');
+
+            return Promise.resolve(false);
+        }
     }
 
     getCameraDevices() {
@@ -235,8 +246,7 @@ class MediaDevice {
                         return videoInputDevices.map(device => {
                             return {
                                 deviceId: device.deviceId,
-                                label: device.label,
-                                facingMode: ''
+                                label: device.label
                             };
                         });
                         // return Promise.all(videoInputDevices.map(device => {
