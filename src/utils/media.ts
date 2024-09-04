@@ -1,4 +1,40 @@
 
+function polyfillGetUserMedia() {
+    if (typeof window === 'undefined') {
+        return;
+    }
+
+    // Older browsers might not implement mediaDevices at all, so we set an empty object first
+    if (navigator.mediaDevices === undefined) {
+        (navigator as any).mediaDevices = {};
+    }
+
+    // Some browsers partially implement mediaDevices. We can't just assign an object
+    // with getUserMedia as it would overwrite existing properties.
+    // Here, we will just add the getUserMedia property if it's missing.
+    if (navigator.mediaDevices.getUserMedia === undefined) {
+        navigator.mediaDevices.getUserMedia = function (constraints) {
+            // First get ahold of the legacy getUserMedia, if present
+            // @ts-ignore
+            const getUserMedia = navigator.getUserMedia || navigator.webkitGetUserMedia ||
+                // @ts-ignore
+                navigator.mozGetUserMedia || navigator.msGetUserMedia;
+
+            // Some browsers just don't implement it - return a rejected promise with an error
+            // to keep a consistent interface
+            if (!getUserMedia) {
+                return Promise.reject(
+                    new Error("getUserMedia is not implemented in this browser")
+                );
+            }
+
+            // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+            return new Promise(function (resolve, reject) {
+                getUserMedia.call(navigator, constraints, resolve, reject);
+            });
+        };
+    }
+};
 
 export const CONSTRAINTS = {
     audio: {
@@ -6,7 +42,6 @@ export const CONSTRAINTS = {
         channelCount: 1
     },
     video: {
-        device: undefined,
         facingMode: 'user',
         width: { min: 480, ideal: 640, max: 960 },
         height: { min: 480, ideal: 480, max: 480 }
@@ -26,12 +61,16 @@ class MediaDevice {
     currentStream: any;
     currentDevice: MediaDeviceInfo | null | undefined;
     videoDevices: [] | any;
-    isSupported: boolean = false;
 
     constructor() {
+        polyfillGetUserMedia();
+
         this.constraints = CONSTRAINTS;
         this.currentStream = null;
-        this.isSupported = !!navigator.mediaDevices && !!navigator.mediaDevices.getUserMedia;
+    }
+
+    isSupported() {
+        return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     }
 
     onUserMediaError(err:any) {
@@ -40,10 +79,27 @@ class MediaDevice {
     }
 
     stopStream() {
-        if (this.currentStream) {
-            this.currentStream.getTracks().forEach((track: any) => track.stop());
-            this.currentStream = null;
+        const stream = this.currentStream;
+        // stop all tracks
+        if (stream) {
+            if (stream) {
+                if (stream.getVideoTracks && stream.getAudioTracks) {
+                    stream.getVideoTracks().forEach((track:any) => {
+                        stream.removeTrack(track);
+                        track.stop();
+                    });
+                    stream.getAudioTracks().forEach((track:any) => {
+                        stream.removeTrack(track);
+                        track.stop()
+                    });
+                } else if (stream.getTracks) {
+                    stream.getTracks().forEach((track: any) => track.stop());
+                } else {
+                    stream.stop();
+                }
+            }
         }
+        this.currentStream = null;
     }
 
     stream(callback: Function | null = null, constraints = {}) {
@@ -108,7 +164,7 @@ class MediaDevice {
 
     initStream(callback: Function | null = null, constraints = {}) {
         
-        if(!this.isSupported) {
+        if(!this.isSupported()) {
             console.error('getUserMedia is not supported in this browser.');
             return null;
         }
