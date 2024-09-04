@@ -178,31 +178,30 @@ class MediaDevice {
     toggleVideoFacingMode(callback: Function | null = null) {
         console.log('MediaDevices - Toggling video facing mode : ' + this.videoDevices.length);
 
-        // if (this.currentDevice && this.videoDevices.length) {
-        //     const device = this.videoDevices
-        //         .find((device: any) => {
-        //             if (device.deviceId !== this.currentDevice?.deviceId) {
-        //                 return true;
-        //                 // if (!device.facingMode.includes(currentFacingMode)) {
-        //                 //     return true;
-        //                 // }
-        //             }
-        //         });
+        if (this.currentDevice && this.videoDevices.length) {
+            const device = this.videoDevices
+                .find((device: any) => {
+                    if (device.deviceId !== this.currentDevice?.deviceId) {
+                        return true;
+                        // if (!device.facingMode.includes(currentFacingMode)) {
+                        //     return true;
+                        // }
+                    }
+                });
 
-        //     console.log('MediaDevices - Toggling device: ' + JSON.stringify(device));
+            console.log('MediaDevices - Toggling device: ' + JSON.stringify(device));
 
-        //     if (device) {
-        //         const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
+            if (device) {
+                const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
          
-        //         console.log('MediaDevices - Toggling facing mode: ' + facingMode);
+                console.log('MediaDevices - Toggling facing mode: ' + facingMode);
 
-        //         return this.stream(callback, { video: { facingMode: { exact : facingMode } }});
-        //     }
-        // };
+                return this.stream(callback, { video: { facingMode: { exact : facingMode } }});
+            }
+        };
 
-        return this.stream(callback, { video: { facingMode: { exact : 'environment' } }});
 
-        // return Promise.resolve();
+        return Promise.resolve();
     }
 
     initStream(callback: Function | null = null, constraints = {}) {

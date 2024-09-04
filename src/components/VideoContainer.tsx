@@ -188,7 +188,7 @@ const VideoContainer: React.FC = () => {
                         Flip Camera
                     </button>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        currentStream : [{currentStream && currentStream.getVideoTracks()[0].label}]
+                        currentStream : [{currentStream && currentStream?.getVideoTracks()[0]?.label || 'No stream'}]
                     </div>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Video status : [{videoPlayingStatus}]
