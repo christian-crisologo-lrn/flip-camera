@@ -142,6 +142,10 @@ class MediaDevice {
                 console.log('MediaDevices - Streaming success : ' + JSON.stringify(stream));
                 this.currentStream = stream;
                 this.currentDevice = this.getStreamDevice(stream);
+                const track = stream.getVideoTracks()[0];
+                const settings = track.getSettings();
+                // @ts-ignore
+                this.currentDevice.facingMode = settings.facingMode || newConstraints.video.facingMode || 'user';
                 this.constraints = newConstraints;
                 
                 if (callback) {
@@ -190,7 +194,9 @@ class MediaDevice {
 
             // if (device) {
             const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
-            return this.stream(callback, { video: { facingMode: { exact: facingMode} } });
+            console.log('MediaDevices - Toggling facing mode to: ' + facingMode);
+
+            return this.stream(callback, { video: { facingMode: { ideal: facingMode } } });
             // }
         };
 
@@ -229,7 +235,7 @@ class MediaDevice {
                             return {
                                 deviceId: device.deviceId,
                                 label: device.label,
-                                facingMode: []
+                                facingMode: ''
                             };
                         });
                         // return Promise.all(videoInputDevices.map(device => {
