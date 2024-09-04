@@ -15,14 +15,23 @@ export const CONSTRAINTS = {
 
 export const facingModes = ['user', 'environment'];
 
+interface MediaDeviceInfo {
+    deviceId: string;
+    label: string;
+    facingMode: string;
+};
+
 class MediaDevice {
     constraints: typeof CONSTRAINTS;
     currentStream: any;
-    devices: [] | any;
+    currentDevice: MediaDeviceInfo | null | undefined;
+    videoDevices: [] | any;
+    isSupported: boolean = false;
 
     constructor() {
         this.constraints = CONSTRAINTS;
         this.currentStream = null;
+        this.isSupported = !!navigator.mediaDevices && !!navigator.mediaDevices.getUserMedia;
     }
 
     onUserMediaError(err:any) {
@@ -54,30 +63,6 @@ class MediaDevice {
             .catch(this.onUserMediaError);
     }
 
-
-    
-    findDeviceIdWithFacingMode(facingMode: string) {
-        return navigator.mediaDevices.enumerateDevices().then(devices => {
-            const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
-            const promises = videoInputDevices.map(device => {
-                return navigator.mediaDevices.getUserMedia({
-                    video: { deviceId: { exact: device.deviceId }, facingMode: { ideal: facingMode } }
-                }).then(stream => {
-                    const track = stream.getVideoTracks()[0];
-                    const capabilities = track.getCapabilities();
-                    stream.getTracks().forEach(track => track.stop());
-
-                    if (capabilities.facingMode && capabilities.facingMode.includes(facingMode)) {
-                        return device.deviceId;
-                    }
-                    return null;
-                }).catch(() => null);
-            });
-
-            return Promise.all(promises).then(results => results.find(deviceId => deviceId !== null));
-        });
-    }
-
     updateFacingMode(facingMode: string) {
         if (!this.currentStream) {
             console.error('No active stream to update.');
@@ -96,20 +81,49 @@ class MediaDevice {
     }
 
     toggleVideoFacingMode(callback: Function) {
-        const { facingMode } = this.getCurrentStreamDevice();
+        if (this.currentDevice && this.videoDevices.length) {
+            const currentFacingMode = this.currentDevice.facingMode;
 
-        return this.updateFacingMode(facingMode === 'user' ? 'environment' : 'user')
-            .then((stream: any) => callback && callback(stream));  
+            const device = this.videoDevices
+                .find((device: any) => {
+                    if (device.deviceId !== this.currentDevice?.deviceId) {
+
+                        if (!device.facingMode.includes(currentFacingMode)) {
+                            return true;
+                        }
+                    }
+                });
+
+            if (device) {
+                return this.stream(callback, { video: { deviceId: device.deviceId } });
+            }
+        };
+
+        return Promise.resolve();
     }
 
-    isSupported() {
-        return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
-    }
+    initStream(callback: Function | null = null, constraints = {}) {
+        
+        if(!this.isSupported) {
+            console.error('getUserMedia is not supported in this browser.');
+            return null;
+        }
 
-    getFacingMode() {
-        return this.constraints.video.facingMode;
-    }
+        return this.getCameraDevices()
+            .then((devices: any) => {
+                this.videoDevices = devices;
 
+                return devices;
+            })
+            .then(() => {
+                return this.stream(callback, constraints)
+                    .then((stream: any) => {
+                        this.currentDevice = this.getStreamDevice(stream);
+
+                        return stream;
+                    });
+            });
+    }
 
     getCameraDevices() {
         return navigator.mediaDevices.enumerateDevices()
@@ -141,23 +155,18 @@ class MediaDevice {
                         });
                 }));
             })
-            .then(devices => {
-                this.devices = devices;
-
-                return devices;
-            })
             .catch(error => {
                 console.error('Error enumerating devices:', error);
                 return [];
             });
     }
 
-    getCurrentStreamDevice() {
-        if (this.currentStream) {
-            const videoTrack = this.currentStream.getVideoTracks()[0];
+    getStreamDevice(stream: any) {
+        if (stream) {
+            const videoTrack = stream.getVideoTracks()[0];
             const deviceId = videoTrack.getSettings().deviceId;
 
-            return this.devices.find((device: any) => device.deviceId === deviceId);
+            return this.videoDevices.find((device: any) => device.deviceId === deviceId);
         }
         return null;
     }

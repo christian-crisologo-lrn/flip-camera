@@ -15,6 +15,7 @@ const VideoContainer: React.FC = () => {
     const [videoPlayingStatus, setVideoPlayingStatus] = useState<string>('idle');
     const [mediaDevice, setMediaDevice] = useState<any>(null);
     const [cameraDevices, setCameraDevices] = useState<any>([]);
+    const [messages, setMessages] = useState<any>([]);
 
     const setVideoStatus = (status: string) => {
         setVideoPlayingStatus(status);
@@ -25,12 +26,7 @@ const VideoContainer: React.FC = () => {
         if (mediaDevice === null) {
             let _mediaDevice = new MediaDevice();
 
-            _mediaDevice.getCameraDevices().then((devices: any) => {
-                setCameraDevices(devices);
-            });
-
             setMediaDevice(_mediaDevice);
-
         }
         return () => {
             // Cleanup media stream on component unmount
@@ -39,18 +35,21 @@ const VideoContainer: React.FC = () => {
     }, []);
 
     useEffect(() => {
-        if (mediaDevice && !mediaDevice.isSupported()) {
+        if (mediaDevice && !mediaDevice.isSupported) {
             console.error('getUserMedia is not supported in this browser.');
+            setMessages(['getUserMedia is not supported in this browser.']);
             return;
         }
 
         if (videoRef.current && mediaDevice) {
             setIsLoading(true);
-            mediaDevice.stream().then((stream: MediaStream) => {
+            mediaDevice.initStream().then((stream: MediaStream) => {
+                setCameraDevices(mediaDevice.videoDevices);
                 playStreamToVideo(stream);
                 setIsLoading(false);
             }).catch((error: any) => {
                 console.error('Error accessing media devices.', error);
+                setMessages((messages: []) => [...messages, 'getUserMedia is not supported in this browser.']);
                 setIsLoading(false);
                 if (error.name === 'NotAllowedError') {
                     setVideoPlayingStatus('Permissions to access camera were denied.');
@@ -123,6 +122,11 @@ const VideoContainer: React.FC = () => {
     }
 
     const toggleCamera = () => {
+        if (mediaDevice.videoDevices.length <= 1) {
+            setMessages(['Media device doesnt support multiple cameras.']);
+            return;
+        }
+
         setIsLoading(true);
         mediaDevice.toggleVideoFacingMode()
             .then((stream: MediaStream) => {
@@ -131,13 +135,6 @@ const VideoContainer: React.FC = () => {
                 // setFacingMode(mediaDevice.getFacingMode());
             });
     };
-
-    // const stopAndUnloadStream = () => {
-    //     if (videoRef.current && videoRef.current.srcObject) {
-    //         mediaDevice.stopStream();
-    //         videoRef.current.srcObject = null;
-    //     }
-    // };
 
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
@@ -197,6 +194,9 @@ const VideoContainer: React.FC = () => {
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Camera Devices : {cameraDevices.map((device: any) => `${device.label} - (${device.facingMode})`)
                             .map((device: any) => (<p>{device}</p>))}
+                    </div>
+                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                        Messages : {messages.map((message: any) => (<p>{message}</p>))}
                     </div>
                 </div>
             </div>
