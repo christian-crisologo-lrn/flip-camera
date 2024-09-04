@@ -175,7 +175,7 @@ class MediaDevice {
         });
     }
 
-    toggleVideoFacingMode() {
+    toggleVideoFacingMode(callback: Function | null = null) {
         console.log('MediaDevices - Toggling video facing mode');
 
         if (this.currentDevice && this.videoDevices.length) {
@@ -196,8 +196,7 @@ class MediaDevice {
             const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
             console.log('MediaDevices - Toggling facing mode to: ' + facingMode);
 
-            // return this.stream(callback, { video: { facingMode: { exact: facingMode } } });
-            // }
+            return this.stream(callback, { video: { facingMode: { exact: facingMode } } });
         };
 
         return Promise.resolve();
