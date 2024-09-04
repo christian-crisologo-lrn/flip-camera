@@ -8,7 +8,6 @@ const VideoContainer: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
-    // const [facingMode, setFacingMode] = useState<boolean>(true);
     const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isPlaying, setIsPlaying] = useState<boolean>(true);
@@ -48,7 +47,6 @@ const VideoContainer: React.FC = () => {
                 setCameraDevices(mediaDevice.videoDevices);
                 playStreamToVideo(stream);
                 setShowFlipCamera(mediaDevice.canToggleVideoFacingMode);
-                setIsLoading(false);
             }).catch((error: any) => {
                 console.error('Error accessing media devices.', error);
                 setMessages((messages: []) => [...messages, 'getUserMedia is not supported in this browser.']);
@@ -75,7 +73,10 @@ const VideoContainer: React.FC = () => {
             videoRef.current.onended = () => setVideoStatus('ended');
             videoRef.current.onerror = () => setVideoStatus('error');
             videoRef.current.onloadeddata = () => setVideoStatus('data loaded');
-            videoRef.current.oncanplay = () => setVideoStatus('can play');
+            videoRef.current.oncanplay = () => {
+                setIsLoading(false);
+                setVideoStatus('can play')
+            };
             videoRef.current.oncanplaythrough = () => setVideoStatus('can play through');
             videoRef.current.onstalled = () => setVideoStatus('stalled');
             videoRef.current.onseeked = () => setVideoStatus('seeked');
@@ -125,11 +126,6 @@ const VideoContainer: React.FC = () => {
     }
 
     const toggleCamera = () => {
-        // if (mediaDevice.videoDevices.length <= 1) {
-        //     setMessages(['Media device doesnt support multiple cameras.']);
-        //     return;
-        // }
-
         setIsLoading(true);
         mediaDevice.toggleVideoFacingMode()
             .then((stream: MediaStream) => {
@@ -142,70 +138,68 @@ const VideoContainer: React.FC = () => {
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
         { 'bg-blue-500 hover:bg-blue-600': !isRecording },
-        'mt-4 text-white font-bold py-2 px-4 rounded',
+        'mt-4 text-white font-bold py-2 px-4 rounded bg-green-400',
     );
 
     return (
-        <div className="m-1">
-            <div className="container p-5 align-center">
-                <div className="mt-2 border align-center p-5">
-                    <div className="flex justify-center items-center relative">
-                        {isLoading && (
-                            <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-10">
-                                <span className="text-white text-xl">Loading...</span>
-                            </div>
-                        )}
-                        <video
-                            ref={videoRef}
-                            id="camera-stream"
-                            className=""
-                            width={480}
-                            height={480}
-                            autoPlay={true}
-                            playsInline={true}
-                            crossOrigin="anonymous"
-                        ></video>
-                    </div>
+        <div className="container p-2 align-center">
+            <div className="mt-2 border align-center">
+                <div className="flex justify-center items-center relative p-2 min-h-[300px]">
+                    {isLoading && (
+                        <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-10">
+                            <span className="text-white text-xl">Loading...</span>
+                        </div>
+                    )}
+                    <video
+                        ref={videoRef}
+                        id="camera-stream"
+                        className=""
+                        width={380}
+                        height={285}
+                        autoPlay={true}
+                        playsInline={true}
+                        crossOrigin="anonymous"
+                    ></video>
                 </div>
-                <div className="flex mt-4 m-2 flex-col">
-                    <div className="flex my-2 justify-between">
-                        <button
-                            onClick={isPlaying ? pauseVideo : playVideo}
-                            className="mt-2 px-4 py-2 bg-green-500 text-white rounded-md min-w-[200px]"
-                        >
-                            {isPlaying ? 'Pause' : 'Play'}
-                        </button>
-                        <button
-                            onClick={isRecording ? stopRecording : startRecording}
-                            className={recordBtnCls}
-                        >
-                            {isRecording ? 'Stop Recording' : 'Start Recording'}
-                        </button>
-                    </div>
-                    {
-                        showFlipCamera &&
-                        <button
-                            onClick={toggleCamera}
-                            className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
-                        >
-                            Flip Camera
-                        </button>
-                    }
-                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        currentStream : [{currentStream && currentStream?.getVideoTracks()[0]?.label || 'No stream'}]
-                    </div>
-                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Video status : [{videoPlayingStatus}]
-                    </div>
-                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Camera Devices : {cameraDevices.map((device: any) => `${device.label} - (${device.facingMode})`)
-                            .map((device: any, index: number) => (<p key={index}>{device}</p>))}
-                    </div>
-                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Messages : {messages.map((message: any, index: number) => (<p key={index}>{message}</p>))}
-                    </div>
+            </div>
+            <div className="flex flex-col">
+                <div className="flex justify-between my-2">
+                    <button
+                        onClick={isPlaying ? pauseVideo : playVideo}
+                        className="mt-4 text-white font-bold py-2 bg-red-400 px-4 rounded min-w-[200px]"
+                    >
+                        {isPlaying ? 'Pause' : 'Play'}
+                    </button>
+                    <button
+                        onClick={isRecording ? stopRecording : startRecording}
+                        className={recordBtnCls}
+                    >
+                        {isRecording ? 'Stop Recording' : 'Start Recording'}
+                    </button>
+                </div>
+                {
+                    showFlipCamera &&
+                    <button
+                        onClick={toggleCamera}
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                    >
+                        Flip Camera
+                    </button>
+                }
+                <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                    currentStream : [{currentStream && currentStream?.getVideoTracks()[0]?.label || 'No stream'}]
+                </div>
+                <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                    Video status : [{videoPlayingStatus}]
+                </div>
+                <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                    Camera Devices : {cameraDevices.map((device: any) => `${device.label} - (${device.facingMode})`)
+                        .map((device: any, index: number) => (<p key={index}>{device}</p>))}
+                </div>
+                <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                    Messages : {messages.map((message: any, index: number) => (<p key={index}>{message}</p>))}
+                </div>
 
-                </div>
             </div>
         </div>
     );

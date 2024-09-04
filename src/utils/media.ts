@@ -70,8 +70,8 @@ export const CONSTRAINTS = {
     },
     video: {
         facingMode: 'user',
-        width: { min: 480, ideal: 640, max: 960 },
-        height: { min: 480, ideal: 480, max: 480 }
+        width: { min: 380, ideal: 380, max: 380 },
+        height: { min: 285, ideal: 285, max: 285 }
     }
 };
 
