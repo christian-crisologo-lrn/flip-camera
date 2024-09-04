@@ -225,16 +225,18 @@ class MediaDevice {
                         console.log('MediaDevices - devices ' + JSON.stringify(videoInputDevices));
 
                         return Promise.all(videoInputDevices.map(device => {
-                            const newDevice = {
-                                deviceId: device.deviceId,
-                                label: device.label,
-                                facingMode: []
-                            };
-
-                            console.log('MediaDevices - creating new device ' + JSON.stringify(newDevice));
+                           
 
                             return navigator.mediaDevices.getUserMedia({ video: { deviceId: device.deviceId } })
                                 .then(stream => {
+                                    const newDevice = {
+                                        deviceId: device.deviceId,
+                                        label: device.label,
+                                        facingMode: []
+                                    };
+        
+                                    console.log('MediaDevices - creating new device ' + JSON.stringify(newDevice));
+
                                     const track = stream.getVideoTracks()[0];
                                     const capabilities = track?.getCapabilities();
                                     console.log('MediaDevices - track ' + JSON.stringify(track));
@@ -245,11 +247,15 @@ class MediaDevice {
 
                                     return newDevice;
                                 })
-                                .catch(error => {
-                                    console.error('Error accessing media devices: ' + JSON.stringify(error));
-                                    
-                                    return newDevice;
-                                });
+                                // .catch(error => {
+                                //     console.error('Error accessing media devices: ' + JSON.stringify(error));
+
+                                //     return {
+                                //         deviceId: device.deviceId,
+                                //         label: device.label,
+                                //         facingMode: []
+                                //     };;
+                                // });
                         }));
                     })
                     .catch(error => {
