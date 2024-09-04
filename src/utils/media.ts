@@ -23,6 +23,7 @@ function polyfillGetUserMedia() {
             // Some browsers just don't implement it - return a rejected promise with an error
             // to keep a consistent interface
             if (!getUserMedia) {
+                console.error('getUserMedia is not implemented in this browser');
                 return Promise.reject(
                     new Error("getUserMedia is not implemented in this browser")
                 );

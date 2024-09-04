@@ -3,6 +3,7 @@ import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
 import MediaDevice from '../utils/media';
 
+
 const VideoContainer: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
@@ -52,6 +53,7 @@ const VideoContainer: React.FC = () => {
                 setMessages((messages: []) => [...messages, 'getUserMedia is not supported in this browser.']);
                 setIsLoading(false);
                 if (error.name === 'NotAllowedError') {
+                    setVideoPlayingStatus('Permissions to access camera were denied.');
                     setVideoPlayingStatus('Permissions to access camera were denied.');
                 } else if (error.name === 'NotFoundError') {
                     setVideoPlayingStatus('No camera device found.');
@@ -193,11 +195,12 @@ const VideoContainer: React.FC = () => {
                     </div>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Camera Devices : {cameraDevices.map((device: any) => `${device.label} - (${device.facingMode})`)
-                            .map((device: any) => (<p>{device}</p>))}
+                            .map((device: any, index: number) => (<p key={index}>{device}</p>))}
                     </div>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Messages : {messages.map((message: any) => (<p>{message}</p>))}
+                        Messages : {messages.map((message: any, index: number) => (<p key={index}>{message}</p>))}
                     </div>
+
                 </div>
             </div>
         </div>
