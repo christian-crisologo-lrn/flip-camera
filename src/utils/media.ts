@@ -175,7 +175,7 @@ class MediaDevice {
         });
     }
 
-    toggleVideoFacingMode(callback: Function) {
+    toggleVideoFacingMode(callback: Function | null = null) {
         console.log('MediaDevices - Toggling video facing mode : ' + this.videoDevices.length);
 
         // if (this.currentDevice && this.videoDevices.length) {
@@ -200,7 +200,9 @@ class MediaDevice {
         //     }
         // };
 
-        return Promise.resolve();
+        return this.stream(callback, { video: { facingMode: { exact : 'environment' } }});
+
+        // return Promise.resolve();
     }
 
     initStream(callback: Function | null = null, constraints = {}) {
