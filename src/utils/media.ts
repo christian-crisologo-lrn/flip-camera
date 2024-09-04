@@ -196,7 +196,7 @@ class MediaDevice {
             const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
             console.log('MediaDevices - Toggling facing mode to: ' + facingMode);
 
-            return this.stream(callback, { video: { facingMode: { exact: facingMode } } });
+            return this.stream(callback);
         };
 
         return Promise.resolve();

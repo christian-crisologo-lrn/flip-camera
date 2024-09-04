@@ -130,7 +130,12 @@ const VideoContainer: React.FC = () => {
         }
 
         setIsLoading(true);
-        mediaDevice.toggleVideoFacingMode();
+        mediaDevice.toggleVideoFacingMode()
+            .then((stream: MediaStream) => {
+                playStreamToVideo(stream);
+                setIsLoading(false);
+                // setFacingMode(mediaDevice.getFacingMode());
+            });
     };
 
     const recordBtnCls = classname(
