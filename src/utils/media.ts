@@ -47,13 +47,17 @@ class MediaDevice {
     }
 
     stream(callback: Function | null = null, constraints = {}) {
+        const newConstraints = { ...this.constraints, ...constraints };
+        // stop all streams before starting a new one
         this.stopStream();
-        this.constraints = { ...this.constraints, ...constraints };
     
         return navigator.mediaDevices
-            .getUserMedia(this.constraints)
+            .getUserMedia(newConstraints)
             .then((stream) => {
                 this.currentStream = stream;
+                this.currentDevice = this.getStreamDevice(stream);
+                this.constraints = newConstraints;
+                
                 if (callback) {
                     callback(stream);
                 }
@@ -115,14 +119,7 @@ class MediaDevice {
 
                 return devices;
             })
-            .then(() => {
-                return this.stream(callback, constraints)
-                    .then((stream: any) => {
-                        this.currentDevice = this.getStreamDevice(stream);
-
-                        return stream;
-                    });
-            });
+            .then(() => this.stream(callback, constraints));
     }
 
     getCameraDevices() {
