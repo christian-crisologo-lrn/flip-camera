@@ -54,26 +54,52 @@ class MediaDevice {
             .catch(this.onUserMediaError);
     }
 
-    toggleVideoFacingMode(callback: Function) {
-        const constraints = {...this.constraints};
-        const currentDevice = this.getCurrentStreamDevice();
 
-        const deviceId = this.devices.find((device: any) => {
-            return currentDevice.deviceId !== device.deviceId
-                && device.facingMode !== currentDevice.facingMode;
+    
+    findDeviceIdWithFacingMode(facingMode: string) {
+        return navigator.mediaDevices.enumerateDevices().then(devices => {
+            const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+            const promises = videoInputDevices.map(device => {
+                return navigator.mediaDevices.getUserMedia({
+                    video: { deviceId: { exact: device.deviceId }, facingMode: { ideal: facingMode } }
+                }).then(stream => {
+                    const track = stream.getVideoTracks()[0];
+                    const capabilities = track.getCapabilities();
+                    stream.getTracks().forEach(track => track.stop());
+
+                    if (capabilities.facingMode && capabilities.facingMode.includes(facingMode)) {
+                        return device.deviceId;
+                    }
+                    return null;
+                }).catch(() => null);
+            });
+
+            return Promise.all(promises).then(results => results.find(deviceId => deviceId !== null));
         });
+    }
 
-        if (!deviceId) {
-            // no need to toggle
-            return Promise.resolve(this.currentStream);
+    updateFacingMode(facingMode: string) {
+        if (!this.currentStream) {
+            console.error('No active stream to update.');
+            return Promise.reject('No active stream to update.');
         }
 
-        //@ts-ignore
-        constraints.video.deviceId = { exact: deviceId.deviceId };
+        const videoTrack = this.currentStream.getVideoTracks()[0];
+        const constraints = { ...this.constraints, video: { ...this.constraints.video, facingMode: { ideal: facingMode } } };
 
-        this.stopStream();
-        
-        return this.stream(callback, constraints);
+        return videoTrack.applyConstraints(constraints.video).then(() => {
+            return this.currentStream;
+        }).catch((err: any ) => {
+            console.warn('Device does not support the specified facing mode. Keeping the current stream. Error:', err);
+            return this.currentStream;
+        });
+    }
+
+    toggleVideoFacingMode(callback: Function) {
+        const { facingMode } = this.getCurrentStreamDevice();
+
+        return this.updateFacingMode(facingMode === 'user' ? 'environment' : 'user')
+            .then((stream: any) => callback && callback(stream));  
     }
 
     isSupported() {
