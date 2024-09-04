@@ -175,30 +175,30 @@ class MediaDevice {
         });
     }
 
-    toggleVideoFacingMode(callback: Function) {
+    toggleVideoFacingMode() {
         console.log('MediaDevices - Toggling video facing mode');
 
-        if (this.currentDevice && this.videoDevices.length) {
-            // const currentFacingMode = this.currentDevice.facingMode;
+        // if (this.currentDevice && this.videoDevices.length) {
+        //     // const currentFacingMode = this.currentDevice.facingMode;
 
-            // const device = this.videoDevices
-            //     .find((device: any) => {
-            //         if (device.deviceId !== this.currentDevice?.deviceId) {
-            //             return true;
-            //             // if (!device.facingMode.includes(currentFacingMode)) {
-            //             //     return true;
-            //             // }
-            //         }
-            //     });
-            // console.log('MediaDevices - Toggling device: ' + JSON.stringify(device));
+        //     // const device = this.videoDevices
+        //     //     .find((device: any) => {
+        //     //         if (device.deviceId !== this.currentDevice?.deviceId) {
+        //     //             return true;
+        //     //             // if (!device.facingMode.includes(currentFacingMode)) {
+        //     //             //     return true;
+        //     //             // }
+        //     //         }
+        //     //     });
+        //     // console.log('MediaDevices - Toggling device: ' + JSON.stringify(device));
 
-            // if (device) {
-            const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
-            console.log('MediaDevices - Toggling facing mode to: ' + facingMode);
+        //     // if (device) {
+        //     const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
+        //     console.log('MediaDevices - Toggling facing mode to: ' + facingMode);
 
-            return this.stream(callback, { video: { facingMode: { ideal: facingMode } } });
-            // }
-        };
+        //     return this.stream(callback, { video: { facingMode: { ideal: facingMode } } });
+        //     // }
+        // };
 
         return Promise.resolve();
     }
