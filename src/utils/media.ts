@@ -106,10 +106,8 @@ class MediaDevice {
         console.error('User media error:' + JSON.stringify(err));
     }
 
-    stopStream(streamInput: any = null) {
+    stopStream(stream: any) {
         console.log('MediaDevices - Stopping stream');
-
-        const stream = streamInput || this.currentStream;
         // stop all tracks
         if (stream) {
             if (stream) {
@@ -129,7 +127,6 @@ class MediaDevice {
                 }
             }
         }
-        this.currentStream = null;
     }
 
     stream(callback: Function | null = null, constraints = {}) {
@@ -137,7 +134,7 @@ class MediaDevice {
 
         const newConstraints = { ...this.constraints, ...constraints };
         // stop all streams before starting a new one
-        this.stopStream();
+        this.stopStream(this.currentStream);
     
         return navigator.mediaDevices
             .getUserMedia(newConstraints)
@@ -228,28 +225,30 @@ class MediaDevice {
                         console.log('MediaDevices - devices ' + JSON.stringify(videoInputDevices));
 
                         return Promise.all(videoInputDevices.map(device => {
+                            const newDevice = {
+                                deviceId: device.deviceId,
+                                label: device.label,
+                                facingMode: []
+                            };
+
+                            console.log('MediaDevices - creating new device ' + JSON.stringify(newDevice));
+
                             return navigator.mediaDevices.getUserMedia({ video: { deviceId: device.deviceId } })
                                 .then(stream => {
                                     const track = stream.getVideoTracks()[0];
                                     const capabilities = track?.getCapabilities();
-                                    console.log('MediaDevices - track and capabilities loaded:', track, capabilities);
+                                    console.log('MediaDevices - track ' + JSON.stringify(track));
+                                    console.log('MediaDevices - capabilities ' + JSON.stringify(capabilities));
 
                                     // Stop the track to release the camera
                                     this.stopStream(stream);
 
-                                    return {
-                                        deviceId: device.deviceId,
-                                        label: device.label,
-                                        facingMode: capabilities?.facingMode || []
-                                    };
+                                    return newDevice;
                                 })
                                 .catch(error => {
                                     console.error('Error accessing media devices: ' + JSON.stringify(error));
-                                    return {
-                                        deviceId: device.deviceId,
-                                        label: device.label,
-                                        facingMode: []
-                                    };
+                                    
+                                    return newDevice;
                                 });
                         }));
                     })
