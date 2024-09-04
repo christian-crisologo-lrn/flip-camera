@@ -215,7 +215,7 @@ class MediaDevice {
     getCameraDevices() {
         console.log('MediaDevices - Getting camera devices');
 
-        return navigator.mediaDevices.getUserMedia({audio: true, video: true})
+        return navigator.mediaDevices.getUserMedia({ audio: false, video: true })
             .then(() => {
                 console.log('MediaDevices - getUserMedia access granted');
                 return navigator.mediaDevices.enumerateDevices()
