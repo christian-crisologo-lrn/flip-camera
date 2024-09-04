@@ -175,21 +175,23 @@ class MediaDevice {
         console.log('MediaDevices - Toggling video facing mode');
 
         if (this.currentDevice && this.videoDevices.length) {
-            const currentFacingMode = this.currentDevice.facingMode;
+            // const currentFacingMode = this.currentDevice.facingMode;
 
-            const device = this.videoDevices
-                .find((device: any) => {
-                    if (device.deviceId !== this.currentDevice?.deviceId) {
+            // const device = this.videoDevices
+            //     .find((device: any) => {
+            //         if (device.deviceId !== this.currentDevice?.deviceId) {
+            //             return true;
+            //             // if (!device.facingMode.includes(currentFacingMode)) {
+            //             //     return true;
+            //             // }
+            //         }
+            //     });
+            // console.log('MediaDevices - Toggling device: ' + JSON.stringify(device));
 
-                        if (!device.facingMode.includes(currentFacingMode)) {
-                            return true;
-                        }
-                    }
-                });
-            console.log('MediaDevices - Toggling device: ' + JSON.stringify(device));
-            if (device) {
-                return this.stream(callback, { video: { deviceId: device.deviceId } });
-            }
+            // if (device) {
+            const facingMode = this.currentDevice.facingMode === 'user' ? 'environment' : 'user';
+            return this.stream(callback, { video: { facingMode: { exact: facingMode} } });
+            // }
         };
 
         return Promise.resolve();
@@ -220,57 +222,63 @@ class MediaDevice {
                 console.log('MediaDevices - getUserMedia access granted');
                 return navigator.mediaDevices.enumerateDevices()
                     .then(devices => {
-                        console.log('MediaDevices - Enumerating devices:' + JSON.stringify(devices))
                         const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
                         console.log('MediaDevices - devices ' + JSON.stringify(videoInputDevices));
-
-                        return Promise.all(videoInputDevices.map(device => {
+                        
+                        return videoInputDevices.map(device => {
+                            return {
+                                deviceId: device.deviceId,
+                                label: device.label,
+                                facingMode: []
+                            };
+                        });
+                        // return Promise.all(videoInputDevices.map(device => {
                            
-                            return navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: device.deviceId } } })
-                                .then(stream => {
-                                    const newDevice = {
-                                        deviceId: device.deviceId,
-                                        label: device.label,
-                                        facingMode: []
-                                    };
+                        //     return navigator.mediaDevices.getUserMedia({ video: { deviceId: { exact: device.deviceId } } })
+                        //         .then(stream => {
+                        //             const newDevice = {
+                        //                 deviceId: device.deviceId,
+                        //                 label: device.label,
+                        //                 facingMode: []
+                        //             };
         
-                                    console.log('MediaDevices - creating new device ' + JSON.stringify(newDevice));
+                        //             console.log('MediaDevices - creating new device ' + JSON.stringify(newDevice));
 
-                                    const track = stream.getVideoTracks()[0];
-                                    const settings = track.getSettings();
-                                    stream.getTracks().forEach(track => track.stop());
+                        //             const track = stream.getVideoTracks()[0];
+                        //             const settings = track.getSettings();
+                        //             stream.getTracks().forEach(track => track.stop());
                                     
-                                    console.log('MediaDevices - track ' + JSON.stringify(track));
-                                    console.log('MediaDevices - settings ' + JSON.stringify(settings));
+                        //             console.log('MediaDevices - track ' + JSON.stringify(track));
+                        //             console.log('MediaDevices - settings ' + JSON.stringify(settings));
 
-                                    // @ts-ignore
-                                    newDevice.facingMode = settings.facingMode ? [settings.facingMode] : [];
+                        //             // @ts-ignore
+                        //             newDevice.facingMode = settings.facingMode ? [settings.facingMode] : [];
                                     
-                                    // Stop the track to release the camera
-                                    // this.stopStream(stream);
+                        //             // Stop the track to release the camera
+                        //             // this.stopStream(stream);
 
-                                    return {
-                                        deviceId: device.deviceId,
-                                        label: device.label,
-                                        facingMode: []
-                                    };
-                                })
-                                .catch(error => {
-                                    console.error('Error accessing media devices: ' + JSON.stringify(error));
+                        //             return {
+                        //                 deviceId: device.deviceId,
+                        //                 label: device.label,
+                        //                 facingMode: []
+                        //             };
+                        //         })
+                        //         .catch(error => {
+                        //             console.error('Error accessing media devices: ' + JSON.stringify(error));
 
-                                    return {
-                                        deviceId: device.deviceId,
-                                        label: device.label,
-                                        facingMode: []
-                                    };;
-                                });
-                        }));
+                        //             return {
+                        //                 deviceId: device.deviceId,
+                        //                 label: device.label,
+                        //                 facingMode: []
+                        //             };;
+                        //         });
+                        // }));
                     })
                     .catch(error => {
                         console.error('Error enumerating devices: ' + JSON.stringify(error));
                         return [];
                     });
-        })
+        });
     }
 
     getStreamDevice(stream: any) {
