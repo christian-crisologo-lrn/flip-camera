@@ -124,13 +124,13 @@ const VideoContainer: React.FC = () => {
     }
 
     const toggleCamera = () => {
-        if (mediaDevice.videoDevices.length <= 1) {
-            setMessages(['Media device doesnt support multiple cameras.']);
-            return;
-        }
+        // if (mediaDevice.videoDevices.length <= 1) {
+        //     setMessages(['Media device doesnt support multiple cameras.']);
+        //     return;
+        // }
 
         setIsLoading(true);
-        mediaDevice.toggleVideoFacingMode()
+        mediaDevice.toggleVideoFacingMode().bind(mediaDevice)
             .then((stream: MediaStream) => {
                 playStreamToVideo(stream);
                 setIsLoading(false);
