@@ -37,6 +37,30 @@ function polyfillGetUserMedia() {
             });
         };
     }
+
+    if (navigator.mediaDevices.enumerateDevices === undefined) {
+        navigator.mediaDevices.enumerateDevices = function () {
+            // First get ahold of the legacy getUserMedia, if present
+            // @ts-ignore
+            const enumerateDevices = navigator.enumerateDevices || navigator.webkitEnumerateDevices ||
+                // @ts-ignore
+                navigator.mozEnumerateDevices || navigator.msEnumerateDevices;
+
+            // Some browsers just don't implement it - return a rejected promise with an error
+            // to keep a consistent interface
+            if (!enumerateDevices) {
+                console.error('enumerateDevices is not implemented in this browser');
+                return Promise.reject(
+                    new Error("enumerateDevices is not implemented in this browser")
+                );
+            }
+
+            // Otherwise, wrap the call to the old navigator.getUserMedia with a Promise
+            return new Promise(function (resolve, reject) {
+                enumerateDevices.call(navigator, resolve, reject);
+            });
+        };
+    }
 };
 
 export const CONSTRAINTS = {
@@ -194,39 +218,46 @@ class MediaDevice {
     getCameraDevices() {
         console.log('MediaDevices - Getting camera devices');
 
-        return navigator.mediaDevices.enumerateDevices()
-            .then(devices => {
-                const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+        return navigator.mediaDevices.getUserMedia({audio: true, video: true})
+            .then(() => {
+                console.log('MediaDevices - getUserMedia access granted');
+                return navigator.mediaDevices.enumerateDevices()
+                    .then(devices => {
+                        console.log('MediaDevices - Enumerating devices:', devices);
+                        const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+                        console.log('MediaDevices - ', videoInputDevices);
 
-                return Promise.all(videoInputDevices.map(device => {
-                    return navigator.mediaDevices.getUserMedia({ video: { deviceId: device.deviceId } })
-                        .then(stream => {
-                            const track = stream.getVideoTracks()[0];
-                            const capabilities = track?.getCapabilities();
+                        return Promise.all(videoInputDevices.map(device => {
+                            return navigator.mediaDevices.getUserMedia({ video: { deviceId: device.deviceId } })
+                                .then(stream => {
+                                    const track = stream.getVideoTracks()[0];
+                                    const capabilities = track?.getCapabilities();
+                                    console.log('MediaDevices - track and capabilities loaded:', track, capabilities);
 
-                            // Stop the track to release the camera
-                            this.stopStream(stream);
+                                    // Stop the track to release the camera
+                                    this.stopStream(stream);
 
-                            return {
-                                deviceId: device.deviceId,
-                                label: device.label,
-                                facingMode: capabilities?.facingMode || ''
-                            };
-                        })
-                        .catch(error => {
-                            console.error('Error accessing media devices:', error);
-                            return {
-                                deviceId: device.deviceId,
-                                label: device.label,
-                                facingMode: ''
-                            };
-                        });
-                }));
-            })
-            .catch(error => {
-                console.error('Error enumerating devices:', error);
-                return [];
-            });
+                                    return {
+                                        deviceId: device.deviceId,
+                                        label: device.label,
+                                        facingMode: capabilities?.facingMode || []
+                                    };
+                                })
+                                .catch(error => {
+                                    console.error('Error accessing media devices:', error);
+                                    return {
+                                        deviceId: device.deviceId,
+                                        label: device.label,
+                                        facingMode: []
+                                    };
+                                });
+                        }));
+                    })
+                    .catch(error => {
+                        console.error('Error enumerating devices:', error);
+                        return [];
+                    });
+        })
     }
 
     getStreamDevice(stream: any) {
