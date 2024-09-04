@@ -130,7 +130,7 @@ const VideoContainer: React.FC = () => {
         // }
 
         setIsLoading(true);
-        mediaDevice.toggleVideoFacingMode().bind(mediaDevice)
+        mediaDevice.toggleVideoFacingMode()
             .then((stream: MediaStream) => {
                 playStreamToVideo(stream);
                 setIsLoading(false);
