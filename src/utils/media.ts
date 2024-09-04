@@ -103,7 +103,7 @@ class MediaDevice {
 
     onUserMediaError(err:any) {
         // Temporary logging the error
-        console.error('User media error:', err);
+        console.error('User media error:' + JSON.stringify(err));
     }
 
     stopStream(streamInput: any = null) {
@@ -142,7 +142,7 @@ class MediaDevice {
         return navigator.mediaDevices
             .getUserMedia(newConstraints)
             .then((stream) => {
-                console.log('MediaDevices - Streaming success:', stream);
+                console.log('MediaDevices - Streaming success : ' + JSON.stringify(stream));
                 this.currentStream = stream;
                 this.currentDevice = this.getStreamDevice(stream);
                 this.constraints = newConstraints;
@@ -169,7 +169,7 @@ class MediaDevice {
         return videoTrack.applyConstraints(constraints.video).then(() => {
             return this.currentStream;
         }).catch((err: any ) => {
-            console.warn('Device does not support the specified facing mode. Keeping the current stream. Error:', err);
+            console.warn('Device does not support the specified facing mode. Keeping the current stream. Error: ' + JSON.stringify(err));
             return this.currentStream;
         });
     }
@@ -189,7 +189,7 @@ class MediaDevice {
                         }
                     }
                 });
-            console.log('MediaDevices - Toggling device:', device);
+            console.log('MediaDevices - Toggling device: ' + JSON.stringify(device));
             if (device) {
                 return this.stream(callback, { video: { deviceId: device.deviceId } });
             }
@@ -223,9 +223,9 @@ class MediaDevice {
                 console.log('MediaDevices - getUserMedia access granted');
                 return navigator.mediaDevices.enumerateDevices()
                     .then(devices => {
-                        console.log('MediaDevices - Enumerating devices:', devices);
+                        console.log('MediaDevices - Enumerating devices:' + JSON.stringify(devices))
                         const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
-                        console.log('MediaDevices - ', videoInputDevices);
+                        console.log('MediaDevices - devices ' + JSON.stringify(videoInputDevices));
 
                         return Promise.all(videoInputDevices.map(device => {
                             return navigator.mediaDevices.getUserMedia({ video: { deviceId: device.deviceId } })
@@ -244,7 +244,7 @@ class MediaDevice {
                                     };
                                 })
                                 .catch(error => {
-                                    console.error('Error accessing media devices:', error);
+                                    console.error('Error accessing media devices: ' + JSON.stringify(error));
                                     return {
                                         deviceId: device.deviceId,
                                         label: device.label,
@@ -254,7 +254,7 @@ class MediaDevice {
                         }));
                     })
                     .catch(error => {
-                        console.error('Error enumerating devices:', error);
+                        console.error('Error enumerating devices: ' + JSON.stringify(error));
                         return [];
                     });
         })
