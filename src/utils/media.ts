@@ -47,20 +47,25 @@ class MediaDevice {
         console.log('MediaDevices - Stopping stream');
         // stop all tracks
         if (stream) {
-            if (stream?.getVideoTracks && stream?.getAudioTracks) {
-                stream.getVideoTracks().forEach((track:any) => {
-                    stream.removeTrack(track);
-                    track.stop();
-                });
-                stream.getAudioTracks().forEach((track:any) => {
-                    stream.removeTrack(track);
-                    track.stop()
-                });
-            } else if (stream?.getTracks) {
+            if (stream.getTracks) {
                 stream.getTracks().forEach((track: any) => track.stop());
             } else {
                 stream.stop();
             }
+            // if (stream?.getVideoTracks && stream?.getAudioTracks) {
+            //     stream.getVideoTracks().forEach((track:any) => {
+            //         stream.removeTrack(track);
+            //         track.stop();
+            //     });
+            //     stream.getAudioTracks().forEach((track:any) => {
+            //         stream.removeTrack(track);
+            //         track.stop()
+            //     });
+            // } else if (stream?.getTracks) {
+            //     stream.getTracks().forEach((track: any) => track.stop());
+            // } else {
+            //     stream.stop();
+            // }
         }
     }
 
