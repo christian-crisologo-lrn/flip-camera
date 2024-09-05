@@ -3,6 +3,7 @@ import React from 'react';
 import Logs from './components/Logs';
 import VideoContainer from './components/VideoContainer';
 import ReactWebCam from './components/ReactWebCamVendor';
+import BasicCamera from './components/ BasicCamera';
 
 const repoURL = "https://api.github.com/repos/christian-crisologo-lrn/flip-camera/commits";
 const fetchLatestCommitHash = async () => {
@@ -32,7 +33,7 @@ const initLog = () => {
 function App() {
 
   const [hash, setHash] = React.useState<string>('');
-  const [showVideoContainer, setShowVideoContainer] = React.useState<boolean>(true);
+  const [cameraOption, setCameraOption] = React.useState('BasicCamera');
 
 
 
@@ -50,22 +51,36 @@ function App() {
     };
   }, []);
 
-  const toggleComponent = () => {
-    setShowVideoContainer((prevState: any) => !prevState);
-  };
+  const options = ['BasicCamera', 'ReactWebCam', 'VideoContainer'];
 
   return (
     <div className="bg-gray-100 dark:bg-gray-700 flex flex-col items-center justify-center w-full">
       <div className='container max-w-[420px] items-center justify-center text-center '>
         <h1 className="text-2xl mt-2 text-center font-bold text-black dark:text-white">Flip Camera</h1>
-        <button
-          onClick={toggleComponent}
-          className="bg-gray-500 text-white text-sm px-4 py-2 rounded mt-4 self-center"
-        >
-          Toggle component: {showVideoContainer ? 'ReactWebCam' : 'VideoContainer'}
-        </button>
-
-        {showVideoContainer ? <VideoContainer /> : <ReactWebCam />}
+        <div className="w-full">
+          <label htmlFor="dropdown" className="block text-sm font-medium text-gray-700 mb-1">Select an option:</label>
+          <select
+            id="dropdown"
+            onChange={(e) => setCameraOption(e.target.value)}
+            defaultValue={cameraOption}
+            className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+            <option value="" disabled selected>Select a camera sample</option>
+            {
+              options.map((option, index) => (
+                <option key={index} value={option}>{option}</option>
+              ))
+            }
+          </select>
+        </div>
+        {
+          cameraOption === 'BasicCamera' && <BasicCamera />
+        }
+        {
+          cameraOption === 'ReactWebCam' && <ReactWebCam />
+        }
+        {
+          cameraOption === 'VideoContainer' && <VideoContainer />
+        }
         <Logs />
       </div>
       <p className='min-w-[400px] mb-2 text-center text-gray-500 bg-black border border-gray-400 rounded text-xs p-1 '>version : {hash}</p>

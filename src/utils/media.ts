@@ -8,7 +8,7 @@ export const CONSTRAINTS = {
         channelCount: 1
     },
     video: {
-        facingMode: { exact: 'user' },
+        facingMode: { ideal: 'user' },
         width: { min: 380, ideal: 380, max: 380 },
         height: { min: 285, ideal: 285, max: 285 }
     }
@@ -19,7 +19,7 @@ export const facingModes = ['user', 'environment'];
 interface MediaDeviceInfo {
     deviceId: string;
     label: string;
-    facingMode: string | { exact: string };
+    facingMode: string | { ideal: string };
 };
 
 class MediaDevice {
@@ -113,7 +113,7 @@ class MediaDevice {
             const streamFacingMode = this.getStreamFacingMode(currentStream, this.constraints);
             const facingMode = streamFacingMode === 'user' ? 'environment' : 'user';
         
-            newConstraints.video.facingMode.exact = facingMode;
+            newConstraints.video.facingMode.ideal = facingMode;
             console.log('MediaDevices - Toggling facing mode: ' + JSON.stringify(newConstraints));
 
             return this.stream(newConstraints);
