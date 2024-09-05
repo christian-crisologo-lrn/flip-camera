@@ -1,7 +1,7 @@
 import React, { useRef, useState } from 'react';
 import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
-import WebCam from '../utils/react-webcam';
+import WebCam from 'react-webcam';
 
 const FACING_MODE_USER = "user";
 const FACING_MODE_ENVIRONMENT = "environment";
