@@ -64,12 +64,17 @@ class MediaDevice {
         }
     }
 
-    getStreamFacingMode(stream: any) {
+    getStreamFacingMode(stream: any, contraints: any = {}) {
         if (stream) {
             const videoTrack = stream?.getVideoTracks()[0];
             const settings = videoTrack?.getSettings();
 
-            return settings.facingMode || '';
+            if (settings.facingMode) {
+                return settings.facingMode;
+            }
+        }
+        if (contraints && !!contraints.video?.facingMode) {
+            return contraints.video.facingMode;
         }
 
         return '';
@@ -100,15 +105,17 @@ class MediaDevice {
 
 
     toggleVideoFacingMode(callback: Function | null = null, stream: any = null) {
-        console.log('MediaDevices - Toggling video facing mode : ' + this.videoDevices.length);
+        console.log('MediaDevices - Toggling video facing mode : ');
+        console.log('MediaDevices - No of video devices : ' + this.videoDevices.length);
         const currentStream = stream || this.currentStream;
 
         if (currentStream) {
-            const facingMode = this.getStreamFacingMode(currentStream);
+            const streamFacingMode = this.getStreamFacingMode(currentStream, this.constraints);
+            const facingMode = streamFacingMode === 'user' ? 'environment' : 'user';
         
             console.log('MediaDevices - Toggling facing mode: ' + facingMode);
 
-            return this.stream(callback, { video: { facingMode: facingMode }});
+            return this.stream(callback, { video: { facingMode}});
         } else {
             return Promise.resolve();
         }
