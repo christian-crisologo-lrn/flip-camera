@@ -167,7 +167,7 @@ class MediaDevice {
         console.log('MediaDevices - Toggling video facing mode : ' + this.videoDevices.length);
         const currentStream = stream || this.currentStream;
 
-        if (currentStream && this.canToggleVideoFacingMode) {
+        if (currentStream) {
             const facingMode = this.getStreamFacingMode(currentStream);
         
             console.log('MediaDevices - Toggling facing mode: ' + facingMode);
@@ -206,7 +206,7 @@ class MediaDevice {
 
                 return false;
             }
-            
+
             const constraints = { video: { facingMode : { ideal: "environment" } } };
 
             return navigator.mediaDevices.getUserMedia(constraints)
