@@ -146,23 +146,35 @@ class MediaDevice {
         }
     }
 
+    async checkFacingModeSupport(facingMode: string) {
+        const constraints = { audio: false, video: { facingMode: { exact: facingMode } } };
+
+        try {
+            console.log(`MediaDevices - validating facingMode ${facingMode} : ${JSON.stringify(constraints)}`);
+
+            await navigator.mediaDevices.getUserMedia(constraints);
+            console.log(`MediaDevices - device supports ${facingMode} `);
+
+            return true;
+        } catch (error) {
+            console.log(`MediaDevices - Device not supported ${facingMode} :   ${JSON.stringify(constraints)}`);
+
+            return false;
+        }
+    };
+
     async checkToggleVideoFacingModeSupport(videoDevices: any[]) {
         if ( videoDevices.length > 1 ) {
-
-            const constraints = { audio: false, video: { facingMode: { exact: 'environment' } } };
-
-            console.log('MediaDevices - validating Environment facingMode : ' + JSON.stringify(constraints));
-
-            try {
-                await navigator.mediaDevices.getUserMedia(constraints);
-                console.log('MediaDevices - Device supports Environment facingMode');
-
-                return true;
-            } catch (error) {
-                console.log('MediaDevices - Device does not support Environment facingMode : ' + JSON.stringify(error));
-
-                return false;
+            const hasEnvironmentSupport = await this.checkFacingModeSupport('environment');
+            
+            if (!hasEnvironmentSupport) {
+                const hasUserSupport = await this.checkFacingModeSupport('user');
+                
+                return hasUserSupport;
             }
+
+            return true;
+
         } else {
             console.log('MediaDevices - Device only support single facingMode');
 
