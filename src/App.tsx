@@ -2,7 +2,7 @@ import './App.css'
 import React from 'react';
 import Logs from './components/Logs';
 import VideoContainer from './components/VideoContainer';
-import ReactWebCam from './components/ReactWebCam'
+import ReactWebCam from './components/ReactWebCamVendor';
 
 const repoURL = "https://api.github.com/repos/christian-crisologo-lrn/flip-camera/commits";
 const fetchLatestCommitHash = async () => {

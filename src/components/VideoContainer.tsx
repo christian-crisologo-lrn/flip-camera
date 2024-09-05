@@ -77,7 +77,10 @@ const VideoContainer: React.FC = () => {
                 setIsLoading(false);
                 setVideoStatus('can play');
             };
-            videoRef.current.oncanplaythrough = () => setVideoStatus('can play through');
+            videoRef.current.oncanplaythrough = () => {
+                setIsLoading(false);
+                setVideoStatus('can play through');
+            };
             videoRef.current.onstalled = () => setVideoStatus('stalled');
             videoRef.current.onseeked = () => setVideoStatus('seeked');
             videoRef.current.onseeking = () => setVideoStatus('seeking');
@@ -129,6 +132,7 @@ const VideoContainer: React.FC = () => {
         setIsLoading(true);
         mediaDevice.toggleVideoFacingMode()
             .then((stream: MediaStream) => {
+                setMessages([...messages, `Toggling camera facing mode changed : ${mediaDevice.getStreamFacingMode(stream)}`]);
                 playStreamToVideo(stream);
                 setIsLoading(false);
                 // setFacingMode(mediaDevice.getFacingMode());
