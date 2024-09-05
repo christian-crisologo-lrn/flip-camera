@@ -8,7 +8,7 @@ export const CONSTRAINTS = {
         channelCount: 1
     },
     video: {
-        facingMode: 'user',
+        facingMode: { exact: 'user' },
         width: { min: 380, ideal: 380, max: 380 },
         height: { min: 285, ideal: 285, max: 285 }
     }
@@ -19,7 +19,7 @@ export const facingModes = ['user', 'environment'];
 interface MediaDeviceInfo {
     deviceId: string;
     label: string;
-    facingMode: string;
+    facingMode: string | { exact: string };
 };
 
 class MediaDevice {
@@ -113,7 +113,7 @@ class MediaDevice {
             const streamFacingMode = this.getStreamFacingMode(currentStream, this.constraints);
             const facingMode = streamFacingMode === 'user' ? 'environment' : 'user';
         
-            newConstraints.video.facingMode = facingMode;
+            newConstraints.video.facingMode.exact = facingMode;
             console.log('MediaDevices - Toggling facing mode: ' + JSON.stringify(newConstraints));
 
             return this.stream(newConstraints);
@@ -126,7 +126,7 @@ class MediaDevice {
         console.log('MediaDevices - Initializing stream');
 
         if(!this.isSupported()) {
-            console.error('getUserMedia is not supported in this browser.');
+            console.error('MediaDevices - getUserMedia is not supported in this browser.');
             return null;
         }
         try {
@@ -139,15 +139,14 @@ class MediaDevice {
             return stream;
             
         } catch (error) {
-            console.error('Error accessing media devices.', error);
-            throw error;
+            console.error('MediaDevices - Error accessing media devices.', error);
             
             return null;
         }
     }
 
     async checkFacingModeSupport(facingMode: string) {
-        const constraints = { audio: false, video: { facingMode: { exact: facingMode } } };
+        const constraints = { video: { facingMode: { exact: facingMode } } };
 
         try {
             console.log(`MediaDevices - validating facingMode ${facingMode} : ${JSON.stringify(constraints)}`);
@@ -186,10 +185,10 @@ class MediaDevice {
         console.log('MediaDevices - Getting camera devices');
 
         try {
-            await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
-            console.log('MediaDevices - getUserMedia access granted');
+            await navigator.mediaDevices.getUserMedia({ video: true });
+            console.log('MediaDevices - getUserMedia video access granted');
         } catch (error) {
-            console.error('MediaDevices - getUserMedia access denied : ' + JSON.stringify(error));
+            console.error('MediaDevices - getUserMedia video access denied : ' + JSON.stringify(error));
             return [];
         }
 
