@@ -158,26 +158,6 @@ class MediaDevice {
             .catch(this.onUserMediaError);
     }
 
-    updateFacingMode(facingMode: string) {
-        console.log('MediaDevices - Updating facing mode:', facingMode);
-        if (!this.currentStream) {
-            console.error('No active stream to update.');
-            return Promise.reject('No active stream to update.');
-        }
-
-        const videoTrack = this.currentStream.getVideoTracks()[0];
-        const constraints = { ...this.constraints, video: { ...this.constraints.video, facingMode: { ideal: facingMode } } };
-
-        return videoTrack.applyConstraints(constraints.video).then(() => {
-            return this.currentStream;
-        }).catch((err: any ) => {
-            console.warn('Device does not support the specified facing mode. Keeping the current stream. Error: ' + JSON.stringify(err));
-            return this.currentStream;
-        });
-    }
-
-
-
 
     toggleVideoFacingMode(callback: Function | null = null) {
         console.log('MediaDevices - Toggling video facing mode : ' + this.videoDevices.length);
@@ -187,7 +167,7 @@ class MediaDevice {
         
             console.log('MediaDevices - Toggling facing mode: ' + facingMode);
 
-            return this.stream(callback, { video: { facingMode: { exact : facingMode } }});
+            return this.stream(callback, { video: { facingMode: facingMode }});
         } else {
             return Promise.resolve();
         }
@@ -221,8 +201,8 @@ class MediaDevice {
                     console.log('MediaDevices - Device supports Environment facingMode');
                     return true;
                 })
-                .catch(() => {
-                    console.log('MediaDevices - Device does not support Environment facingMode');
+                .catch((error: any) => {
+                    console.log('MediaDevices - Device does not support Environment facingMode : ' + JSON.stringify(error));
                     return false;
                 });
         } else {

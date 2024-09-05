@@ -75,7 +75,7 @@ const VideoContainer: React.FC = () => {
             videoRef.current.onloadeddata = () => setVideoStatus('data loaded');
             videoRef.current.oncanplay = () => {
                 setIsLoading(false);
-                setVideoStatus('can play')
+                setVideoStatus('can play');
             };
             videoRef.current.oncanplaythrough = () => setVideoStatus('can play through');
             videoRef.current.onstalled = () => setVideoStatus('stalled');
