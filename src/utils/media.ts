@@ -47,25 +47,20 @@ class MediaDevice {
         console.log('MediaDevices - Stopping stream');
         // stop all tracks
         if (stream) {
-            if (stream.getTracks) {
+            if (stream?.getVideoTracks && stream?.getAudioTracks) {
+                stream.getVideoTracks().forEach((track:any) => {
+                    stream.removeTrack(track);
+                    track.stop();
+                });
+                stream.getAudioTracks().forEach((track:any) => {
+                    stream.removeTrack(track);
+                    track.stop()
+                });
+            } else if (stream?.getTracks) {
                 stream.getTracks().forEach((track: any) => track.stop());
             } else {
                 stream.stop();
             }
-            // if (stream?.getVideoTracks && stream?.getAudioTracks) {
-            //     stream.getVideoTracks().forEach((track:any) => {
-            //         stream.removeTrack(track);
-            //         track.stop();
-            //     });
-            //     stream.getAudioTracks().forEach((track:any) => {
-            //         stream.removeTrack(track);
-            //         track.stop()
-            //     });
-            // } else if (stream?.getTracks) {
-            //     stream.getTracks().forEach((track: any) => track.stop());
-            // } else {
-            //     stream.stop();
-            // }
         }
     }
 
@@ -86,9 +81,11 @@ class MediaDevice {
     }
 
     stream(callback: Function | null = null, constraints = {}) {
-        console.log('MediaDevices - stream');
 
         const newConstraints = { ...this.constraints, ...constraints };
+
+        console.log('MediaDevices - stream with constraints : ' + JSON.stringify(newConstraints));
+
         // stop all streams before starting a new one
         this.stopStream(this.currentStream);
     
@@ -109,18 +106,20 @@ class MediaDevice {
     }
 
 
-    toggleVideoFacingMode(callback: Function | null = null, stream: any = null) {
+    toggleVideoFacingMode(callback: Function | null = null, constraints = {}, stream = null) {
         console.log('MediaDevices - Toggling video facing mode : ');
         console.log('MediaDevices - No of video devices : ' + this.videoDevices.length);
         const currentStream = stream || this.currentStream;
+        const newConstraints = { ...this.constraints, ...constraints };
 
         if (currentStream) {
             const streamFacingMode = this.getStreamFacingMode(currentStream, this.constraints);
             const facingMode = streamFacingMode === 'user' ? 'environment' : 'user';
         
-            console.log('MediaDevices - Toggling facing mode: ' + facingMode);
+            newConstraints.video.facingMode = facingMode;
+            console.log('MediaDevices - Toggling facing mode: ' + JSON.stringify(newConstraints));
 
-            return this.stream(callback, { video: { facingMode}});
+            return this.stream(callback, newConstraints);
         } else {
             return Promise.resolve();
         }
