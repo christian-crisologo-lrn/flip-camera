@@ -149,7 +149,7 @@ class MediaDevice {
     checkToggleVideoFacingModeSupport(videoDevices: any[]) {
         if ( videoDevices.length > 1 ) {
 
-            const constraints = { audio: false, video: { facingMode : { exact : "environment" } } };
+            const constraints = { audio: false, video: true  };
 
             console.log('MediaDevices - validating Environment facingMode');
 
