@@ -15,7 +15,7 @@ export default function Logs() {
             >
                 Show logs
             </button>
-            <div id="log-container" className="mt-2 px-4 py-2 bg-black text-gray-100 h-64 overflow-y-auto min-w-full max-w-full overflow-x-auto border border-gray-300 p-2"
+            <div id="log-container" className="mt-2 px-4  py-2 text-left bg-black text-gray-100 h-64 overflow-y-auto min-w-full max-w-full overflow-x-auto border border-gray-300 p-2"
                 style={{
                     display: showLog ? 'block' : 'none'
                 }}></div>

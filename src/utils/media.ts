@@ -142,6 +142,7 @@ class MediaDevice {
             .then((devices: any) => this.checkToggleVideoFacingModeSupport(devices))
             .then((result: boolean) => {
                 this.canToggleVideoFacingMode = result;
+                console.log('MediaDevices - canToggleVideoFacingMode : ' + this.canToggleVideoFacingMode);
             })
             .then(() => this.stream(callback, constraints));
     }
@@ -151,7 +152,7 @@ class MediaDevice {
 
             const constraints = { audio: false, video: true  };
 
-            console.log('MediaDevices - validating Environment facingMode');
+            console.log('MediaDevices - validating Environment facingMode : ' + JSON.stringify(constraints));
 
             return navigator.mediaDevices.getUserMedia(constraints)
                 .then(() => {
