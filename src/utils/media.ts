@@ -143,7 +143,9 @@ class MediaDevice {
             //     return false;
             // }
 
-            const constraints = { video: { facingMode : { ideal: "environment" } } };
+            const constraints = { audio: false, video: { facingMode :  "environment"  } };
+
+            console.log('MediaDevices - validating Environment facingMode');
 
             return navigator.mediaDevices.getUserMedia(constraints)
                 .then(() => {
