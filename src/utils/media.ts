@@ -144,9 +144,9 @@ class MediaDevice {
                 this.currentStream = stream;
                 this.currentDevice = this.getStreamDevice(stream);
                 const track = stream.getVideoTracks()[0];
-                const settings = track.getSettings();
+                const settings = track?.getSettings();
                 // @ts-ignore
-                this.currentDevice.facingMode = settings.facingMode || newConstraints.video.facingMode || 'user';
+                this.currentDevice.facingMode = settings?.facingMode || newConstraints.video.facingMode || 'user';
                 this.constraints = newConstraints;
                 
                 if (callback) {
@@ -196,7 +196,7 @@ class MediaDevice {
 
     checkToggleVideoFacingModeSupport(videoDevices: any[]) {
         if ( videoDevices.length > 1 ) {
-            return navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode : { exact: 'environment'}} })
+            return navigator.mediaDevices.getUserMedia({ audio: false, video: { facingMode : 'environment' } })
                 .then(() => {
                     console.log('MediaDevices - Device supports Environment facingMode');
                     return true;
