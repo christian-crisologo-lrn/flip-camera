@@ -41,13 +41,14 @@ const VideoContainer: React.FC = () => {
             return;
         }
 
-        if (videoRef.current && mediaDevice) {
+        const initStream = async () => {
             setIsLoading(true);
-            mediaDevice.initStream().then((stream: MediaStream) => {
+            try {
+                const stream = await mediaDevice.initStream();
                 setCameraDevices(mediaDevice.videoDevices);
                 playStreamToVideo(stream);
                 setShowFlipCamera(mediaDevice.canToggleVideoFacingMode);
-            }).catch((error: any) => {
+            } catch (error: any) {
                 console.error('Error accessing media devices.', error);
                 setMessages((messages: []) => [...messages, 'getUserMedia is not supported in this browser.']);
                 setIsLoading(false);
@@ -61,7 +62,11 @@ const VideoContainer: React.FC = () => {
                 } else {
                     setVideoPlayingStatus('An error occurred while accessing the camera.');
                 }
-            });
+            };
+        };
+
+        if (videoRef.current && mediaDevice) {
+            initStream();
         }
     }, [mediaDevice]);
 
@@ -128,16 +133,20 @@ const VideoContainer: React.FC = () => {
         }
     }
 
-    const toggleCamera = () => {
+    const toggleCamera = async () => {
         setIsLoading(true);
         pauseVideo();
-        mediaDevice.toggleVideoFacingMode()
-            .then((stream: MediaStream) => {
-                setMessages([...messages, `Toggling camera facing mode changed : ${mediaDevice.getStreamFacingMode(stream)}`]);
-                playStreamToVideo(stream);
-                setIsLoading(false);
-                // setFacingMode(mediaDevice.getFacingMode());
-            });
+        try {
+            const stream = await mediaDevice.toggleVideoFacingMode();
+            setMessages([...messages, `Toggling camera facing mode changed : ${mediaDevice.getStreamFacingMode(stream)}`]);
+            playStreamToVideo(stream);
+            setIsLoading(false);
+            // setFacingMode(mediaDevice.getFacingMode());
+        } catch (error) {
+            console.error('Error toggling camera facing mode.', error);
+            setMessages([...messages, `Error toggling camera facing mode : ${error}`]);
+            setIsLoading(false);
+        }
     };
 
     const recordBtnCls = classname(

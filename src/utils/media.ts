@@ -31,7 +31,6 @@ class MediaDevice {
 
     constructor() {
         console.log('MediaDevices - MediaDevice instance created');
-  
     }
 
     isSupported() {
@@ -45,21 +44,23 @@ class MediaDevice {
 
     stopStream(stream: any) {
         console.log('MediaDevices - Stopping stream');
+        const currentStream = stream || this.currentStream;
+
         // stop all tracks
-        if (stream) {
-            if (stream?.getVideoTracks && stream?.getAudioTracks) {
-                stream.getVideoTracks().forEach((track:any) => {
-                    stream.removeTrack(track);
+        if (currentStream) {
+            if (currentStream?.getVideoTracks && currentStream?.getAudioTracks) {
+                currentStream.getVideoTracks().forEach((track:any) => {
+                    currentStream.removeTrack(track);
                     track.stop();
                 });
-                stream.getAudioTracks().forEach((track:any) => {
-                    stream.removeTrack(track);
+                currentStream.getAudioTracks().forEach((track:any) => {
+                    currentStream.removeTrack(track);
                     track.stop()
                 });
-            } else if (stream?.getTracks) {
-                stream.getTracks().forEach((track: any) => track.stop());
+            } else if (currentStream?.getTracks) {
+                currentStream.getTracks().forEach((track: any) => track.stop());
             } else {
-                stream.stop();
+                currentStream.stop();
             }
         }
     }
@@ -80,7 +81,7 @@ class MediaDevice {
         return '';
     }
 
-    stream(callback: Function | null = null, constraints = {}) {
+    async stream(constraints = {}) {
 
         const newConstraints = { ...this.constraints, ...constraints };
 
@@ -89,24 +90,20 @@ class MediaDevice {
         // stop all streams before starting a new one
         this.stopStream(this.currentStream);
     
-        return navigator.mediaDevices
-            .getUserMedia(newConstraints)
-            .then((stream) => {
-                console.log('MediaDevices - Streaming success : ' + JSON.stringify(stream));
-                this.currentStream = stream;
-                this.constraints = newConstraints;
-                
-                if (callback) {
-                    callback(stream);
-                }
-    
-                return stream;
-            })
-            .catch(this.onUserMediaError);
+        try {
+            const stream = await navigator.mediaDevices.getUserMedia(newConstraints);
+            console.log('MediaDevices - Streaming success : ' + JSON.stringify(stream));
+            this.currentStream = stream;
+            this.constraints = newConstraints;
+
+            return stream;
+        } catch (err) {
+            return this.onUserMediaError(err);
+        }
     }
 
 
-    toggleVideoFacingMode(callback: Function | null = null, constraints = {}, stream = null) {
+    toggleVideoFacingMode(constraints = {}, stream = null) {
         console.log('MediaDevices - Toggling video facing mode : ');
         console.log('MediaDevices - No of video devices : ' + this.videoDevices.length);
         const currentStream = stream || this.currentStream;
@@ -119,82 +116,87 @@ class MediaDevice {
             newConstraints.video.facingMode = facingMode;
             console.log('MediaDevices - Toggling facing mode: ' + JSON.stringify(newConstraints));
 
-            return this.stream(callback, newConstraints);
+            return this.stream(newConstraints);
         } else {
             return Promise.resolve();
         }
     }
 
-    initStream(callback: Function | null = null, constraints = {}) {
+    async initStream(constraints = {}) {
         console.log('MediaDevices - Initializing stream');
 
         if(!this.isSupported()) {
             console.error('getUserMedia is not supported in this browser.');
             return null;
         }
+        try {
+            const devices = await this.getCameraDevices();
+            this.videoDevices = devices;
+            this.canToggleVideoFacingMode = await this.checkToggleVideoFacingModeSupport(devices);
 
-        return this.getCameraDevices()
-            .then((devices: any) => {
-                this.videoDevices = devices;
+            const stream = await this.stream(constraints);
 
-                return devices;
-            })
-            .then((devices: any) => this.checkToggleVideoFacingModeSupport(devices))
-            .then((result: boolean) => {
-                this.canToggleVideoFacingMode = result;
-
-                console.log('MediaDevices - canToggleVideoFacingMode : ' + this.canToggleVideoFacingMode);
-
-                return this.stream(callback, constraints);
-            })
+            return stream;
+            
+        } catch (error) {
+            console.error('Error accessing media devices.', error);
+            throw error;
+            
+            return null;
+        }
     }
 
-    checkToggleVideoFacingModeSupport(videoDevices: any[]) {
+    async checkToggleVideoFacingModeSupport(videoDevices: any[]) {
         if ( videoDevices.length > 1 ) {
 
             const constraints = { audio: false, video: { facingMode: { exact: 'environment' } } };
 
             console.log('MediaDevices - validating Environment facingMode : ' + JSON.stringify(constraints));
 
-            return navigator.mediaDevices.getUserMedia(constraints)
-                .then(() => {
-                    console.log('MediaDevices - Device supports Environment facingMode');
-                    return true;
-                })
-                .catch((error: any) => {
-                    console.log('MediaDevices - Device does not support Environment facingMode : ' + JSON.stringify(error));
-                    return false;
-                });
+            try {
+                await navigator.mediaDevices.getUserMedia(constraints);
+                console.log('MediaDevices - Device supports Environment facingMode');
+
+                return true;
+            } catch (error) {
+                console.log('MediaDevices - Device does not support Environment facingMode : ' + JSON.stringify(error));
+
+                return false;
+            }
         } else {
             console.log('MediaDevices - Device only support single facingMode');
 
-            return Promise.resolve(false);
+            return false;
         }
     }
 
-    getCameraDevices() {
+    async getCameraDevices() {
         console.log('MediaDevices - Getting camera devices');
 
-        return navigator.mediaDevices.getUserMedia({ audio: false, video: true })
-            .then(() => {
-                console.log('MediaDevices - getUserMedia access granted');
-                return navigator.mediaDevices.enumerateDevices()
-                    .then(devices => {
-                        const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
-                        console.log('MediaDevices - devices ' + JSON.stringify(videoInputDevices));
-                        
-                        return videoInputDevices.map(device => {
-                            return {
-                                deviceId: device.deviceId,
-                                label: device.label
-                            };
-                        });
-                    })
-                    .catch(error => {
-                        console.error('Error enumerating devices: ' + JSON.stringify(error));
-                        return [];
-                    });
-        });
+        try {
+            await navigator.mediaDevices.getUserMedia({ audio: false, video: true });
+            console.log('MediaDevices - getUserMedia access granted');
+        } catch (error) {
+            console.error('MediaDevices - getUserMedia access denied : ' + JSON.stringify(error));
+            return [];
+        }
+
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+            
+            console.log('MediaDevices - devices ' + JSON.stringify(videoInputDevices));
+
+            return videoInputDevices.map(device => {
+                return {
+                    deviceId: device.deviceId,
+                    label: device.label
+                };
+            });
+        } catch (error) {
+            console.error('Error enumerating devices: ' + JSON.stringify(error));
+            return [];
+        }
     }
 
     getStreamDevice(stream: any) {

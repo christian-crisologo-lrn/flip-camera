@@ -17,30 +17,33 @@ const fetchLatestCommitHash = async () => {
   return '';
 };
 
+const initLog = () => {
+  const logContainer = document.getElementById('log-container');
+  window.console.log = console.log =
+    window.console.error = console.error =
+    window.console.warn = console.warn = function (message) {
+      const logMessage = document.createElement('p');
+
+      logMessage.textContent = message;
+      logContainer?.appendChild(logMessage);
+    };
+}
 
 function App() {
 
   const [hash, setHash] = React.useState<string>('');
   const [showVideoContainer, setShowVideoContainer] = React.useState<boolean>(true);
 
+
+
   React.useEffect(() => {
 
     const fetchAndSetHash = async () => {
       const newHash = await fetchLatestCommitHash();
-      setHash(newHash);
+      setHash(newHash.substring(1, 7));
     };
 
-    const logContainer = document.getElementById('log-container');
-
-    window.console.log = console.log =
-      window.console.error = console.error =
-      window.console.warn = console.warn = function (message) {
-        const logMessage = document.createElement('p');
-
-        logMessage.textContent = message;
-        logContainer?.appendChild(logMessage);
-      };
-
+    initLog();
     fetchAndSetHash();
 
     return () => {
@@ -62,7 +65,7 @@ function App() {
           Toggle component: {showVideoContainer ? 'ReactWebCam' : 'VideoContainer'}
         </button>
 
-        {showVideoContainer ? <ReactWebCam /> : <VideoContainer />}
+        {showVideoContainer ? <VideoContainer /> : <ReactWebCam />}
         <Logs />
       </div>
       <p className='min-w-[400px] mb-2 text-center text-gray-500 bg-black border border-gray-400 rounded text-xs p-1 '>version : {hash}</p>
