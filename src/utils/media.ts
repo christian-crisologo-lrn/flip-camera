@@ -20,18 +20,15 @@ interface MediaDeviceInfo {
 };
 
 class MediaDevice {
-    constraints: typeof CONSTRAINTS;
-    currentStream: any;
+    constraints: typeof CONSTRAINTS = CONSTRAINTS;
+    currentStream: any = false;
     currentDevice: MediaDeviceInfo | null | undefined;
     videoDevices: [] | any;
     canToggleVideoFacingMode: boolean = false;
 
     constructor() {
         console.log('MediaDevices - MediaDevice instance created');
-        // polyfillGetUserMedia();
-
-        this.constraints = CONSTRAINTS;
-        this.currentStream = null;
+  
     }
 
     isSupported() {
@@ -142,15 +139,17 @@ class MediaDevice {
             .then((devices: any) => this.checkToggleVideoFacingModeSupport(devices))
             .then((result: boolean) => {
                 this.canToggleVideoFacingMode = result;
+
                 console.log('MediaDevices - canToggleVideoFacingMode : ' + this.canToggleVideoFacingMode);
+
+                return this.stream(callback, constraints);
             })
-            .then(() => this.stream(callback, constraints));
     }
 
     checkToggleVideoFacingModeSupport(videoDevices: any[]) {
         if ( videoDevices.length > 1 ) {
 
-            const constraints = { audio: false, video: true  };
+            const constraints = { audio: false, video: { facingMode: { exact: 'environment' } } };
 
             console.log('MediaDevices - validating Environment facingMode : ' + JSON.stringify(constraints));
 
