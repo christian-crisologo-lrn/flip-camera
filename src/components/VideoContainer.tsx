@@ -130,6 +130,7 @@ const VideoContainer: React.FC = () => {
 
     const toggleCamera = () => {
         setIsLoading(true);
+        pauseVideo();
         mediaDevice.toggleVideoFacingMode()
             .then((stream: MediaStream) => {
                 setMessages([...messages, `Toggling camera facing mode changed : ${mediaDevice.getStreamFacingMode(stream)}`]);

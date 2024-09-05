@@ -81,7 +81,7 @@ class MediaDevice {
     }
 
     stream(callback: Function | null = null, constraints = {}) {
-        console.log('MediaDevices - Starting stream');
+        console.log('MediaDevices - stream');
 
         const newConstraints = { ...this.constraints, ...constraints };
         // stop all streams before starting a new one
@@ -144,11 +144,6 @@ class MediaDevice {
 
     checkToggleVideoFacingModeSupport(videoDevices: any[]) {
         if ( videoDevices.length > 1 ) {
-            // if (!navigator.mediaDevices.getSupportedConstraints().facingMode) {
-            //     console.log('MediaDevices - Device does not supports facingMode');
-
-            //     return false;
-            // }
 
             const constraints = { audio: false, video: { facingMode :  "environment"  } };
 
