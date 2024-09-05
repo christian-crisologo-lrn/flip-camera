@@ -1,4 +1,7 @@
 
+// @ts-ignore
+import adapter from 'webrtc-adapter';
+
 export const CONSTRAINTS = {
     audio: {
         noiseSuppression: true,
@@ -149,7 +152,7 @@ class MediaDevice {
     checkToggleVideoFacingModeSupport(videoDevices: any[]) {
         if ( videoDevices.length > 1 ) {
 
-            const constraints = { audio: false, video: { facingMode: { exact: 'environment' } } };
+            const constraints = { audio: false, video: { facingMode: { exact: 'user' } } };
 
             console.log('MediaDevices - validating Environment facingMode : ' + JSON.stringify(constraints));
 
