@@ -62,7 +62,7 @@ function App() {
           Toggle component: {showVideoContainer ? 'ReactWebCam' : 'VideoContainer'}
         </button>
 
-        {showVideoContainer ? <VideoContainer /> : <ReactWebCam />}
+        {showVideoContainer ? <ReactWebCam /> : <VideoContainer />}
         <Logs />
       </div>
       <p className='min-w-[400px] mb-2 text-center text-gray-500 bg-black border border-gray-400 rounded text-xs p-1 '>version : {hash}</p>

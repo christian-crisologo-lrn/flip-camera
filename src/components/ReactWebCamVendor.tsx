@@ -79,7 +79,8 @@ const VideoContainer: React.FC = () => {
                         <WebCam
                             height={380}
                             width={285}
-                            videoConstraints={{ facingMode, width: 300, height: 285 }} />
+                            audio={false}
+                            videoConstraints={{ facingMode }} />
                     </div>
                 </div>
                 <div className="flex mt-4 m-2 flex-col">
