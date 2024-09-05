@@ -92,7 +92,7 @@ class MediaDevice {
 
     constructor() {
         console.log('MediaDevices - MediaDevice instance created');
-        polyfillGetUserMedia();
+        // polyfillGetUserMedia();
 
         this.constraints = CONSTRAINTS;
         this.currentStream = null;
@@ -201,11 +201,11 @@ class MediaDevice {
 
     checkToggleVideoFacingModeSupport(videoDevices: any[]) {
         if ( videoDevices.length > 1 ) {
-            if (!navigator.mediaDevices.getSupportedConstraints().facingMode) {
-                console.log('MediaDevices - Device does not supports facingMode');
+            // if (!navigator.mediaDevices.getSupportedConstraints().facingMode) {
+            //     console.log('MediaDevices - Device does not supports facingMode');
 
-                return false;
-            }
+            //     return false;
+            // }
 
             const constraints = { video: { facingMode : { ideal: "environment" } } };
 
