@@ -2,6 +2,18 @@
 // @ts-ignore
 import adapter from 'webrtc-adapter';
 
+type Contraints = {
+    audio: {
+        noiseSuppression: boolean;
+        channelCount: number;
+    };
+    video: {
+        facingMode: { ideal: string };
+        width: { min: number; ideal: number; max: number };
+        height: { min: number; ideal: number; max: number };
+    };
+} | null;
+
 export const CONSTRAINTS = {
     audio: {
         noiseSuppression: true,
@@ -81,20 +93,19 @@ class MediaDevice {
         return '';
     }
 
-    async stream(constraints = {}) {
+    async stream(constraints: Contraints = null) {
 
-        const newConstraints = { ...this.constraints, ...constraints };
+        this.validateConstraints(constraints);
 
-        console.log('MediaDevices - stream with constraints : ' + JSON.stringify(newConstraints));
+        console.log('MediaDevices - stream with constraints : ' + JSON.stringify(this.constraints));
 
         // stop all streams before starting a new one
         this.stopStream(this.currentStream);
     
         try {
-            const stream = await navigator.mediaDevices.getUserMedia(newConstraints);
+            const stream = await navigator.mediaDevices.getUserMedia(this.constraints);
             console.log('MediaDevices - Streaming success : ' + JSON.stringify(stream));
             this.currentStream = stream;
-            this.constraints = newConstraints;
 
             return stream;
         } catch (err) {
@@ -103,26 +114,34 @@ class MediaDevice {
     }
 
 
-    toggleVideoFacingMode(constraints = {}, stream = null) {
+    toggleVideoFacingMode(constraints: Contraints, stream = null) {
         console.log('MediaDevices - Toggling video facing mode : ');
         console.log('MediaDevices - No of video devices : ' + this.videoDevices.length);
         const currentStream = stream || this.currentStream;
-        const newConstraints = { ...this.constraints, ...constraints };
+        this.validateConstraints(constraints);
 
         if (currentStream) {
             const streamFacingMode = this.getStreamFacingMode(currentStream, this.constraints);
-            const facingMode = streamFacingMode === 'user' ? 'environment' : 'user';
-        
-            newConstraints.video.facingMode.ideal = facingMode;
-            console.log('MediaDevices - Toggling facing mode: ' + JSON.stringify(newConstraints));
+            
+            this.constraints.video.facingMode.ideal = streamFacingMode === 'user' ? 'environment' : 'user';
 
-            return this.stream(newConstraints);
+            console.log('MediaDevices - Toggling facing mode: ' + JSON.stringify(this.constraints));
+
+            return this.stream(this.constraints);
         } else {
             return Promise.resolve();
         }
     }
 
-    async initStream(constraints = {}) {
+    validateConstraints(constraints: Contraints= null) {
+        if (constraints && constraints?.video.facingMode) {
+            this.constraints.video.facingMode = constraints.video.facingMode;
+        } else if (constraints && constraints?.video) {
+            this.constraints.video = { ...this.constraints, ...constraints.video };
+        }
+    }
+
+    async initStream(constraints: Contraints = null) {
         console.log('MediaDevices - Initializing stream');
 
         if(!this.isSupported()) {

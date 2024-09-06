@@ -6,15 +6,12 @@ import WebCam from 'react-webcam';
 const FACING_MODE_USER = "user";
 const FACING_MODE_ENVIRONMENT = "environment";
 
-const VideoContainer: React.FC = () => {
+const ReactWebCamVendor: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
-    // const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isPlaying, setIsPlaying] = useState<boolean>(true);
-    const [facingMode, setFacingMode] = useState<string>('user');
-    // const [videoPlayingStatus, setVideoPlayingStatus] = useState<string>('idle');
-    // const [cameraDevices, setCameraDevices] = useState<any>([]);
+    const [facingMode, setFacingMode] = useState<string>('environment');
     const [messages, setMessages] = useState<any>([]);
 
     const startRecording = () => {
@@ -104,6 +101,9 @@ const VideoContainer: React.FC = () => {
                     >
                         Flip Camera
                     </button>
+                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                        Facing Camera : [{facingMode}]
+                    </div>
                     {/* <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Video status : [{videoPlayingStatus}]
                     </div> */}
@@ -116,4 +116,4 @@ const VideoContainer: React.FC = () => {
     );
 };
 
-export default VideoContainer;
+export default ReactWebCamVendor;

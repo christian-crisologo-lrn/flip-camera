@@ -1,9 +1,9 @@
 import './App.css'
 import React from 'react';
 import Logs from './components/Logs';
-import VideoContainer from './components/VideoContainer';
+import MediaDevicesCam from './components/MediaDevicesCam';
 import ReactWebCam from './components/ReactWebCamVendor';
-import BasicCamera from './components/ BasicCamera';
+import BasicCamera from './components/BasicCamera';
 
 const repoURL = "https://api.github.com/repos/christian-crisologo-lrn/flip-camera/commits";
 const fetchLatestCommitHash = async () => {
@@ -30,12 +30,19 @@ const initLog = () => {
     };
 }
 
+const clearLog = () => {
+  const logContainer = document.getElementById('log-container');
+
+  if (logContainer) {
+    logContainer.innerHTML = '';
+  }
+}
+
+
 function App() {
 
   const [hash, setHash] = React.useState<string>('');
   const [cameraOption, setCameraOption] = React.useState('BasicCamera');
-
-
 
   React.useEffect(() => {
 
@@ -51,7 +58,11 @@ function App() {
     };
   }, []);
 
-  const options = ['BasicCamera', 'ReactWebCam', 'VideoContainer'];
+  const options = ['BasicCamera', 'ReactWebCam', 'MediaDevicesCam'];
+  const onOptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+    clearLog
+    setCameraOption(e.target.value);
+  }
 
   return (
     <div className="bg-gray-100 dark:bg-gray-700 flex flex-col items-center justify-center w-full">
@@ -61,7 +72,7 @@ function App() {
           <label htmlFor="dropdown" className="block text-sm font-medium text-gray-700 mb-1">Select an option:</label>
           <select
             id="dropdown"
-            onChange={(e) => setCameraOption(e.target.value)}
+            onChange={onOptionChange}
             defaultValue={cameraOption}
             className="block w-full px-4 py-2 text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
             <option value="" disabled selected>Select a camera sample</option>
@@ -79,7 +90,7 @@ function App() {
           cameraOption === 'ReactWebCam' && <ReactWebCam />
         }
         {
-          cameraOption === 'VideoContainer' && <VideoContainer />
+          cameraOption === 'MediaDevicesCam' && <MediaDevicesCam />
         }
         <Logs />
       </div>

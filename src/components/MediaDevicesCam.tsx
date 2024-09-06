@@ -4,7 +4,7 @@ import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
 import MediaDevice from '../utils/media';
 
 
-const VideoContainer: React.FC = () => {
+const MediaDevicesCam: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -16,6 +16,7 @@ const VideoContainer: React.FC = () => {
     const [mediaDevice, setMediaDevice] = useState<any>(null);
     const [cameraDevices, setCameraDevices] = useState<any>([]);
     const [messages, setMessages] = useState<any>([]);
+    const [facingMode, setFacingMode] = useState<string>('environment');
 
     const setVideoStatus = (status: string) => {
         setVideoPlayingStatus(status);
@@ -141,7 +142,7 @@ const VideoContainer: React.FC = () => {
             setMessages([...messages, `Toggling camera facing mode changed : ${mediaDevice.getStreamFacingMode(stream)}`]);
             playStreamToVideo(stream);
             setIsLoading(false);
-            // setFacingMode(mediaDevice.getFacingMode());
+            setFacingMode(mediaDevice.getFacingMode());
         } catch (error) {
             console.error('Error toggling camera facing mode.', error);
             setMessages([...messages, `Error toggling camera facing mode : ${error}`]);
@@ -211,6 +212,9 @@ const VideoContainer: React.FC = () => {
                     currentStream : [{currentStream && currentStream?.getVideoTracks()[0]?.label || 'No stream'}]
                 </div>
                 <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                    Facing Camera : [{facingMode}]
+                </div>
+                <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                     Video status : [{videoPlayingStatus}]
                 </div>
                 <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
@@ -226,4 +230,4 @@ const VideoContainer: React.FC = () => {
     );
 };
 
-export default VideoContainer;
+export default MediaDevicesCam;

@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
 
-const VideoContainer: React.FC = () => {
+const ReactWebCamVendor: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
@@ -195,6 +195,9 @@ const VideoContainer: React.FC = () => {
                         Flip Camera
                     </button>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                        Facing Camera : [{facingMode}]
+                    </div>
+                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Video status : [{videoPlayingStatus}]
                     </div>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
@@ -206,4 +209,4 @@ const VideoContainer: React.FC = () => {
     );
 };
 
-export default VideoContainer;
+export default ReactWebCamVendor;
