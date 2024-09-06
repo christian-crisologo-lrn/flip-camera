@@ -49,9 +49,18 @@ class MediaDevice {
         return navigator.mediaDevices && navigator.mediaDevices.getUserMedia;
     }
 
-    onUserMediaError(err:any) {
+    onUserMediaError(error:any) {
         // Temporary logging the error
-        console.error('User media error:' + JSON.stringify(err));
+        console.error('User media error:' + JSON.stringify(error));
+        if (error.name === 'NotAllowedError') {
+            console.log('MediaDevices - Permissions to access camera were denied.');
+        } else if (error.name === 'NotFoundError') {
+            console.log('MediaDevices - No camera device found.');
+        } else if (error.name === 'NotReadableError') {
+            console.log('MediaDevices - Camera is already in use.');
+        } else {
+            console.log('MediaDevices - An error occurred while accessing the camera.');
+        }
     }
 
     stopStream(stream: any) {

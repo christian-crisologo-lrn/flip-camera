@@ -17,7 +17,7 @@ const ReactWebCamVendor: React.FC = () => {
     const connectToStream = async (facingMode: string = 'user') => {
         setIsLoading(true);
         setFacingMode(facingMode);
-
+        stopUnloadStream();
         try {
             const stream = await navigator.mediaDevices.getUserMedia({ video: { facingMode } });
             playStreamToVideo(stream);
@@ -94,6 +94,35 @@ const ReactWebCamVendor: React.FC = () => {
             setCurrentStream(stream);
             videoRef.current.srcObject = stream;
             videoRef.current.play();
+        }
+    }
+
+    const stopUnloadStream = (stream: any = null) => {
+        console.log('Unloading and Stopping stream');
+        const _currentStream = stream || currentStream;
+
+        // stop all tracks
+        if (_currentStream) {
+            if (_currentStream?.getVideoTracks && _currentStream?.getAudioTracks) {
+                _currentStream.getVideoTracks().forEach((track: any) => {
+                    _currentStream.removeTrack(track);
+                    track.stop();
+                });
+                _currentStream.getAudioTracks().forEach((track: any) => {
+                    _currentStream.removeTrack(track);
+                    track.stop()
+                });
+            } else if (_currentStream?.getTracks) {
+                _currentStream.getTracks().forEach((track: any) => track.stop());
+            } else {
+                _currentStream.stop();
+            }
+            setCurrentStream(null);
+        }
+
+        if (videoRef.current && videoRef.current.srcObject) {
+            videoRef.current.srcObject = null;
+
         }
     }
 
