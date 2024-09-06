@@ -149,9 +149,12 @@ class MediaDevice {
             return null;
         }
         try {
+            const hasEnvironmentSupport = await this.checkFacingModeSupport('environment');  
+            this.canToggleVideoFacingMode = hasEnvironmentSupport;
+            // this.canToggleVideoFacingMode = await this.checkToggleVideoFacingModeSupport(devices);
+
             const devices = await this.getCameraDevices();
             this.videoDevices = devices;
-            this.canToggleVideoFacingMode = await this.checkToggleVideoFacingModeSupport(devices);
 
             const stream = await this.stream(constraints);
 

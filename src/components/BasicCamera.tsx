@@ -11,7 +11,7 @@ const ReactWebCamVendor: React.FC = () => {
     const [facingMode, setFacingMode] = useState<string>('user');
     const [currentStream, setCurrentStream] = useState<MediaStream | null>(null);
     const [videoPlayingStatus, setVideoPlayingStatus] = useState<string>('idle');
-
+    const [cameraDevices, setCameraDevices] = useState<any>([]);
     const [messages, setMessages] = useState<any>([]);
 
     const connectToStream = async (facingMode: string = 'user') => {
@@ -115,6 +115,29 @@ const ReactWebCamVendor: React.FC = () => {
         }
     };
 
+
+    const onGetCameras = async () => {
+        let _cameraDevices: { deviceId: string; label: string; }[] = [];
+
+        try {
+            const devices = await navigator.mediaDevices.enumerateDevices();
+            const videoInputDevices = devices.filter(device => device.kind === 'videoinput');
+
+            console.log('MediaDevices - devices ' + JSON.stringify(videoInputDevices));
+
+            _cameraDevices = videoInputDevices.map(device => {
+                return {
+                    deviceId: device.deviceId,
+                    label: device.label
+                };
+            });
+        } catch (error) {
+            console.error('Error enumerating camera devices: ' + JSON.stringify(error));
+        }
+
+        setCameraDevices(_cameraDevices);
+    };
+
     const stopRecording = () => {
         if (recorder) {
             recorder.stopRecording(() => {
@@ -199,6 +222,16 @@ const ReactWebCamVendor: React.FC = () => {
                     </div>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Video status : [{videoPlayingStatus}]
+                    </div>
+                    <button
+                        onClick={onGetCameras}
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                    >
+                        Get Cameras
+                    </button>
+                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+                        Camera Devices : {cameraDevices.map((device: any) => `${device.label} - (${device.facingMode})`)
+                            .map((device: any, index: number) => (<p key={index}>{device}</p>))}
                     </div>
                     <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
                         Messages : {messages.map((message: any, index: number) => (<p key={index}>{message}</p>))}
