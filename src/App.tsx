@@ -60,7 +60,7 @@ function App() {
 
   const options = ['BasicCamera', 'ReactWebCam', 'MediaDevicesCam'];
   const onOptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    clearLog
+    clearLog();
     setCameraOption(e.target.value);
   }
 

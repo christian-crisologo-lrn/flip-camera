@@ -63,7 +63,7 @@ class MediaDevice {
         }
     }
 
-    stopStream(stream: any) {
+    stopStream(stream: any = null) {
         console.log('MediaDevices - Stopping stream');
         const currentStream = stream || this.currentStream;
 
