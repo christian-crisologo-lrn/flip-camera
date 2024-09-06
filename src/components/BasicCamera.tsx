@@ -134,7 +134,6 @@ const ReactWebCamVendor: React.FC = () => {
             playStreamToVideo(stream);
             setMessages([...messages, `Toggling camera facing mode changed : ${facingMode}`]);
             setIsLoading(false);
-            // setFacingMode(mediaDevice.getFacingMode());
         } catch (error) {
             console.error('Error toggling camera facing mode.', error);
             setMessages([...messages, `Error toggling camera facing mode : ${error}`]);

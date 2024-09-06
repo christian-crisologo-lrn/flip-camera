@@ -142,7 +142,7 @@ const MediaDevicesCam: React.FC = () => {
             setMessages([...messages, `Toggling camera facing mode changed : ${mediaDevice.getStreamFacingMode(stream)}`]);
             playStreamToVideo(stream);
             setIsLoading(false);
-            setFacingMode(mediaDevice.getFacingMode());
+            setFacingMode(mediaDevice.getStreamFacingMode(stream));
         } catch (error) {
             console.error('Error toggling camera facing mode.', error);
             setMessages([...messages, `Error toggling camera facing mode : ${error}`]);

@@ -68,7 +68,7 @@ class MediaDevice {
         const currentStream = stream || this.currentStream;
 
         // stop all tracks
-        if (currentStream) {
+        if (currentStream && currentStream.active) {
             if (currentStream?.getVideoTracks && currentStream?.getAudioTracks) {
                 currentStream.getVideoTracks().forEach((track:any) => {
                     currentStream.removeTrack(track);
@@ -182,8 +182,10 @@ class MediaDevice {
         try {
             console.log(`MediaDevices - validating facingMode ${facingMode} : ${JSON.stringify(constraints)}`);
 
-            await navigator.mediaDevices.getUserMedia(constraints);
+            const stream = await navigator.mediaDevices.getUserMedia(constraints);
             console.log(`MediaDevices - device supports ${facingMode} `);
+
+            this.stopStream(stream);
 
             return true;
         } catch (error) {
@@ -215,13 +217,13 @@ class MediaDevice {
     async getCameraDevices() {
         console.log('MediaDevices - Getting camera devices');
 
-        try {
-            await navigator.mediaDevices.getUserMedia({ video: true });
-            console.log('MediaDevices - getUserMedia video access granted');
-        } catch (error) {
-            console.error('MediaDevices - getUserMedia video access denied : ' + JSON.stringify(error));
-            return [];
-        }
+        // try {
+        //     await navigator.mediaDevices.getUserMedia({ video: true });
+        //     console.log('MediaDevices - getUserMedia video access granted');
+        // } catch (error) {
+        //     console.error('MediaDevices - getUserMedia video access denied : ' + JSON.stringify(error));
+        //     return [];
+        // }
 
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
