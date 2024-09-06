@@ -177,7 +177,7 @@ class MediaDevice {
     }
 
     async checkFacingModeSupport(facingMode: string) {
-        const constraints = { video: { facingMode: { exact: facingMode } } };
+        const constraints = { video: { facingMode } };
 
         try {
             console.log(`MediaDevices - validating facingMode ${facingMode} : ${JSON.stringify(constraints)}`);
