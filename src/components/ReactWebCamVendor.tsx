@@ -11,8 +11,8 @@ const ReactWebCamVendor: React.FC = () => {
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [isPlaying, setIsPlaying] = useState<boolean>(true);
-    const [facingMode, setFacingMode] = useState<string>('environment');
-    const [messages, setMessages] = useState<any>([]);
+    const [facingMode, setFacingMode] = useState<string>(FACING_MODE_ENVIRONMENT);
+    const [messages, setMessages] = useState<string[]>([]);
 
     const startRecording = () => {
         if (videoRef.current && videoRef.current.srcObject) {
@@ -34,27 +34,19 @@ const ReactWebCamVendor: React.FC = () => {
     };
 
     const playVideo = () => {
-        if (videoRef.current) {
-            videoRef.current.play();
-            setIsPlaying(true);
-        }
+        videoRef.current?.play();
+        setIsPlaying(true);
     };
 
     const pauseVideo = () => {
-        if (videoRef.current) {
-            videoRef.current.pause();
-            setIsPlaying(false);
-        }
+        videoRef.current?.pause();
+        setIsPlaying(false);
     };
 
     const toggleCamera = () => {
-        setMessages([...messages, `Toggling camera facing mode: ${facingMode}`]);
-        setFacingMode(
-            prevState =>
-                prevState === FACING_MODE_USER
-                    ? FACING_MODE_ENVIRONMENT
-                    : FACING_MODE_USER
-        );
+        const newFacingMode = facingMode === FACING_MODE_USER ? FACING_MODE_ENVIRONMENT : FACING_MODE_USER;
+        setFacingMode(newFacingMode);
+        setMessages([...messages, `Toggling camera facing mode: ${newFacingMode}`]);
     };
 
     const recordBtnCls = classname(
@@ -68,16 +60,12 @@ const ReactWebCamVendor: React.FC = () => {
             <div className="container p-5 align-center">
                 <div className="mt-2 border align-center p-5">
                     <div className="flex justify-center items-center relative">
-                        {/* {isLoading && (
-                            <div className="absolute inset-0 bg-gray-800 bg-opacity-75 flex justify-center items-center z-10">
-                                <span className="text-white text-xl">Loading...</span>
-                            </div>
-                        )} */}
                         <WebCam
                             height={380}
                             width={285}
                             audio={false}
-                            videoConstraints={{ facingMode }} />
+                            videoConstraints={{ facingMode }}
+                        />
                     </div>
                 </div>
                 <div className="flex mt-4 m-2 flex-col">
@@ -101,19 +89,24 @@ const ReactWebCamVendor: React.FC = () => {
                     >
                         Flip Camera
                     </button>
-                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Facing Camera : [{facingMode}]
-                    </div>
-                    {/* <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Video status : [{videoPlayingStatus}]
-                    </div> */}
-                    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-                        Messages : {messages.map((message: any, index: number) => (<p key={index}>{message}</p>))}
-                    </div>
+                    <InfoDisplay facingMode={facingMode} messages={messages} />
                 </div>
             </div>
         </div>
     );
 };
+
+const InfoDisplay: React.FC<{ facingMode: string; messages: string[] }> = ({ facingMode, messages }) => (
+    <>
+        <InfoItem label="Facing Camera" value={facingMode} />
+        <InfoItem label="Messages" value={messages.join(', ')} />
+    </>
+);
+
+const InfoItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
+    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
+        {label}: [{value}]
+    </div>
+);
 
 export default ReactWebCamVendor;
