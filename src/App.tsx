@@ -42,7 +42,7 @@ const clearLog = () => {
 function App() {
 
   const [hash, setHash] = React.useState<string>('');
-  const [cameraOption, setCameraOption] = React.useState('BasicCamera');
+  const [cameraOption, setCameraOption] = React.useState('MediaDevicesCam');
 
   React.useEffect(() => {
 

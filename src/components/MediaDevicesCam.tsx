@@ -45,7 +45,7 @@ const MediaDevicesCam: React.FC = () => {
         const initStream = async () => {
             setIsLoading(true);
             try {
-                const stream = await mediaDevice.initStream();
+                const stream = await mediaDevice.initStream(null, facingMode);
                 setCameraDevices(mediaDevice.videoDevices);
                 playStreamToVideo(stream);
                 setShowFlipCamera(mediaDevice.canToggleVideoFacingMode);

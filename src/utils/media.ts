@@ -8,7 +8,7 @@ type Contraints = {
         channelCount: number;
     };
     video: {
-        facingMode: { ideal: string };
+        facingMode: string;
         width: { min: number; ideal: number; max: number };
         height: { min: number; ideal: number; max: number };
     };
@@ -20,7 +20,7 @@ export const CONSTRAINTS = {
         channelCount: 1
     },
     video: {
-        facingMode: { ideal: 'user' },
+        facingMode: 'user',
         width: { min: 380, ideal: 380, max: 380 },
         height: { min: 285, ideal: 285, max: 285 }
     }
@@ -31,7 +31,7 @@ export const facingModes = ['user', 'environment'];
 interface MediaDeviceInfo {
     deviceId: string;
     label: string;
-    facingMode: string | { ideal: string };
+    facingMode: string | null;
 };
 
 class MediaDevice {
@@ -132,7 +132,7 @@ class MediaDevice {
         if (currentStream) {
             const streamFacingMode = this.getStreamFacingMode(currentStream, this.constraints);
             
-            this.constraints.video.facingMode.ideal = streamFacingMode === 'user' ? 'environment' : 'user';
+            this.constraints.video.facingMode = streamFacingMode === 'user' ? 'environment' : 'user';
 
             console.log('MediaDevices - Toggling facing mode: ' + JSON.stringify(this.constraints));
 
@@ -150,7 +150,7 @@ class MediaDevice {
         }
     }
 
-    async initStream(constraints: Contraints = null) {
+    async initStream(constraints: Contraints = null, facingMode: string = 'user') {
         console.log('MediaDevices - Initializing stream');
 
         if(!this.isSupported()) {
@@ -158,7 +158,7 @@ class MediaDevice {
             return null;
         }
         try {
-            const hasEnvironmentSupport = await this.checkFacingModeSupport('environment');  
+            const hasEnvironmentSupport = await this.checkFacingModeSupport(facingMode);  
             this.canToggleVideoFacingMode = hasEnvironmentSupport;
             // this.canToggleVideoFacingMode = await this.checkToggleVideoFacingModeSupport(devices);
 
