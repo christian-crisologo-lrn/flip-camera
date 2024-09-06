@@ -48,7 +48,7 @@ const ReactWebCamVendor: React.FC = () => {
         return () => {
             // Cleanup media stream on component unmount
             currentStream && currentStream.getTracks().forEach(track => track.stop());
-            videoRef && videoRef.current?.srcObject = null;
+            // videoRef && videoRef.current?.srcObject = null;
             // videoRef.current && videoRef.current.srcObject && (videoRef.current.srcObject = null);
         };
     }, []);
