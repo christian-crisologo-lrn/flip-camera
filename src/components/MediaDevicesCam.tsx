@@ -205,14 +205,14 @@ const MediaDevicesCam: React.FC = () => {
                         {isRecording ? 'Stop Recording' : 'Start Recording'}
                     </button>
                 </div>
-                {/* {showFlipCamera && ( */}
-                <button
-                    onClick={toggleCamera}
-                    className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
-                >
-                    Flip Camera
-                </button>
-                {/* )} */}
+                {showFlipCamera && (
+                    <button
+                        onClick={toggleCamera}
+                        className="mt-2 px-4 py-2 bg-blue-500 text-white rounded-md"
+                    >
+                        Flip Camera
+                    </button>
+                )}
                 <InfoDisplay
                     currentStream={currentStream}
                     facingMode={facingMode}
