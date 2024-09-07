@@ -2,9 +2,12 @@ import React, { useEffect, useRef, useState } from 'react';
 import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
 import MediaDevice from '../utils/media';
+import InfoDisplay from './CameraInfo';
+import canvasVideoScreenshot from '../utils/canvasVideoScreenshot';
 
 const MediaDevicesCam: React.FC = () => {
     const videoRef = useRef<HTMLVideoElement>(null);
+    const canvasRef = useRef<HTMLCanvasElement>(null);
     const [recorder, setRecorder] = useState<RecordRTC | null>(null);
     const [isRecording, setIsRecording] = useState<boolean>(false);
     const [showFlipCamera, setShowFlipCamera] = useState<boolean>(false);
@@ -67,18 +70,20 @@ const MediaDevicesCam: React.FC = () => {
     useEffect(() => {
         if (videoRef.current) {
             const videoElement = videoRef.current;
-            videoElement.onwaiting = () => setVideoStatus('buffering');
+
+            videoElement.onwaiting = () => {
+                setVideoStatus('buffering');
+            };
             videoElement.onplaying = () => setVideoStatus('playing');
             videoElement.onpause = () => setVideoStatus('paused');
             videoElement.onended = () => setVideoStatus('ended');
             videoElement.onerror = () => setVideoStatus('error');
             videoElement.onloadeddata = () => setVideoStatus('data loaded');
             videoElement.oncanplay = () => {
-                // setIsLoading(false);
                 setVideoStatus('can play');
             };
             videoElement.oncanplaythrough = () => {
-                setIsLoading(false);
+                videoSwitchStreams('playing');
                 setVideoStatus('can play through');
             };
             videoElement.onstalled = () => setVideoStatus('stalled');
@@ -143,14 +148,28 @@ const MediaDevicesCam: React.FC = () => {
         }
     };
 
+    const videoSwitchStreams = (flag: string) => {
+        if (flag === 'loading') {
+            setIsLoading(true);
+            canvasVideoScreenshot.create(canvasRef.current, videoRef.current);
+        }
+
+        if (flag === 'playing') {
+            setTimeout(() => {
+                setIsLoading(false);
+            }, 1000);
+            canvasVideoScreenshot.remove(canvasRef.current);
+        }
+    }
+
     const toggleCamera = async () => {
-        setIsLoading(true);
-        pauseVideo();
+        videoSwitchStreams('loading');
+
         try {
             const stream = await mediaDevice?.toggleVideoFacingMode();
             if (stream) {
-                const streamFacingMode = mediaDevice?.getStreamFacingMode() || '';
 
+                const streamFacingMode = mediaDevice?.getStreamFacingMode() || '';
                 setMessages((prevMessages) => [...prevMessages, `Toggling camera facing mode changed: ${streamFacingMode}`]);
                 playStreamToVideo(stream);
                 setFacingMode(streamFacingMode);
@@ -178,16 +197,18 @@ const MediaDevicesCam: React.FC = () => {
                             <span className="text-white text-xl">Loading...</span>
                         </div>
                     )}
-                    <video
-                        ref={videoRef}
-                        id="camera-stream"
-                        className=""
-                        width={380}
-                        height={285}
-                        autoPlay
-                        playsInline
-                        crossOrigin="anonymous"
-                    ></video>
+                    <div className="video-container">
+                        <video ref={videoRef}
+                            id="camera-stream"
+                            className=""
+                            width={380}
+                            height={285}
+                            autoPlay
+                            playsInline
+                            crossOrigin="anonymous"
+                        />
+                        <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, display: 'none' }} />
+                    </div>
                 </div>
             </div>
             <div className="flex flex-col">
@@ -224,27 +245,5 @@ const MediaDevicesCam: React.FC = () => {
         </div>
     );
 };
-
-const InfoDisplay: React.FC<{
-    currentStream: MediaStream | null;
-    facingMode: string;
-    videoPlayingStatus: string;
-    cameraDevices: MediaDeviceInfo[];
-    messages: string[];
-}> = ({ currentStream, facingMode, videoPlayingStatus, cameraDevices, messages }) => (
-    <>
-        <InfoItem label="Current Stream" value={currentStream?.getVideoTracks()[0]?.label || 'No stream'} />
-        <InfoItem label="Facing Camera" value={facingMode} />
-        <InfoItem label="Video Status" value={videoPlayingStatus} />
-        <InfoItem label="Camera Devices" value={cameraDevices.map((device) => `${device.label} - ()`).join(', ')} />
-        <InfoItem label="Messages" value={messages.join(', ')} />
-    </>
-);
-
-const InfoItem: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-    <div className="mt-2 px-4 py-2 bg-gray-200 text-gray-700 rounded-md">
-        {label}: [{value}]
-    </div>
-);
 
 export default MediaDevicesCam;
