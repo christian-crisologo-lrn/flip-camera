@@ -3,14 +3,12 @@ const InfoDisplay: React.FC<{
     facingMode: string;
     videoPlayingStatus: string;
     cameraDevices: MediaDeviceInfo[];
-    messages: string[];
-}> = ({ currentStream, facingMode, videoPlayingStatus, cameraDevices, messages }) => (
+}> = ({ currentStream, facingMode, videoPlayingStatus, cameraDevices }) => (
     <>
         <InfoItem label="Current Stream" value={currentStream?.getVideoTracks()[0]?.label || 'No stream'} />
         <InfoItem label="Facing Camera" value={facingMode} />
         <InfoItem label="Video Status" value={videoPlayingStatus} />
         <InfoItem label="Camera Devices" value={cameraDevices.map((device) => `${device.label} - ()`).join(', ')} />
-        <InfoItem label="Messages" value={messages.join(', ')} />
     </>
 );
 

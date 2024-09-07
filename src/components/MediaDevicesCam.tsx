@@ -17,7 +17,6 @@ const MediaDevicesCam: React.FC = () => {
     const [videoPlayingStatus, setVideoPlayingStatus] = useState<string>('idle');
     const [mediaDevice, setMediaDevice] = useState<MediaDevice | null>(null);
     const [cameraDevices, setCameraDevices] = useState<MediaDeviceInfo[]>([]);
-    const [messages, setMessages] = useState<string[]>([]);
     const [facingMode, setFacingMode] = useState<string>('environment');
 
     const setVideoStatus = (status: string) => {
@@ -45,7 +44,6 @@ const MediaDevicesCam: React.FC = () => {
             if (!mediaDevice || !mediaDevice.isSupported) {
                 const errorMessage = 'getUserMedia is not supported in this browser.';
                 console.error(errorMessage);
-                setMessages([errorMessage]);
                 return;
             }
 
@@ -94,7 +92,6 @@ const MediaDevicesCam: React.FC = () => {
 
     const handleStreamError = (error: any) => {
         console.error('Error accessing media devices.', error);
-        setMessages((prevMessages) => [...prevMessages, 'getUserMedia is not supported in this browser.']);
         setIsLoading(false);
         switch (error.name) {
             case 'NotAllowedError':
@@ -170,13 +167,11 @@ const MediaDevicesCam: React.FC = () => {
             if (stream) {
 
                 const streamFacingMode = mediaDevice?.getStreamFacingMode() || '';
-                setMessages((prevMessages) => [...prevMessages, `Toggling camera facing mode changed: ${streamFacingMode}`]);
                 playStreamToVideo(stream);
                 setFacingMode(streamFacingMode);
             }
         } catch (error) {
             console.error('Error toggling camera facing mode.', error);
-            setMessages((prevMessages) => [...prevMessages, `Error toggling camera facing mode: ${error}`]);
         } finally {
             setIsLoading(false);
         }
@@ -239,7 +234,6 @@ const MediaDevicesCam: React.FC = () => {
                     facingMode={facingMode}
                     videoPlayingStatus={videoPlayingStatus}
                     cameraDevices={cameraDevices}
-                    messages={messages}
                 />
             </div>
         </div>
