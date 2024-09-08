@@ -26,9 +26,8 @@ canvas {
 @media (max-width: 480px) {
     .video-container {
         min-width: 100%;
-        min-height: auto;
+        min-height: 285px;
         width: 100%;
-        height: auto;
     }
 
     video, canvas {
