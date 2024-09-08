@@ -11,7 +11,7 @@ const create = (canvasElement: HTMLCanvasElement, videoElement: HTMLVideoElement
     }
 };
 
-const fadeOut = (canvasElement: HTMLCanvasElement, animationEndCallback: Function) => {
+const fadeOut = (canvasElement: HTMLCanvasElement, animationEndCallback: Function | null) => {
     let opacity = 1;
 
     const fade = () => {
@@ -32,7 +32,7 @@ const fadeOut = (canvasElement: HTMLCanvasElement, animationEndCallback: Functio
     fade();
 };
 
-const remove = (canvasElement: HTMLCanvasElement, animationEndCallback: Function = null) => {
+const remove = (canvasElement: HTMLCanvasElement, animationEndCallback: Function | null = null) => {
     if (canvasElement) {
         fadeOut(canvasElement, animationEndCallback);
     }
