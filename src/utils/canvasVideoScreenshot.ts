@@ -1,5 +1,4 @@
-const create = (canvasElement:any, videoElement:any) => {
-
+const create = (canvasElement: HTMLCanvasElement, videoElement: HTMLVideoElement) => {
     if (canvasElement && videoElement) {
         const context = canvasElement.getContext('2d');
         if (context) {
@@ -10,19 +9,33 @@ const create = (canvasElement:any, videoElement:any) => {
             canvasElement.style.opacity = '1';
         }
     }
-}
+};
 
-const remove = (canvasElement: any) => {
-    if (canvasElement) {
-        canvasElement.style.transition = 'opacity 2s';
-        canvasElement.style.opacity = '0';
-        setTimeout(() => {
+const fadeOut = (canvasElement: HTMLCanvasElement, animationEndCallback: Function) => {
+    let opacity = 1;
+
+    const fade = () => {
+        if (opacity > 0) {
+            opacity -= 0.02; // Adjust the decrement value for desired speed
+            canvasElement.style.opacity = opacity.toString();
+            requestAnimationFrame(fade);
+        } else {
             canvasElement.style.display = 'none';
-        }, 1000);
-    }
-}
+            const context = canvasElement.getContext('2d');
+            if (context) {
+                context.clearRect(0, 0, canvasElement.width, canvasElement.height);
+            }
+            animationEndCallback && animationEndCallback();
+        }
+    };
 
-export default {
-    create,
-    remove
-}
+    fade();
+};
+
+const remove = (canvasElement: HTMLCanvasElement, animationEndCallback: Function = null) => {
+    if (canvasElement) {
+        fadeOut(canvasElement, animationEndCallback);
+    }
+};
+
+export default { create, remove };

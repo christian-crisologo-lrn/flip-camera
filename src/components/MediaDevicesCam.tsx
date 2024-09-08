@@ -146,16 +146,17 @@ const MediaDevicesCam: React.FC = () => {
     };
 
     const videoSwitchStreams = (flag: string) => {
-        if (flag === 'loading') {
-            setIsLoading(true);
-            canvasVideoScreenshot.create(canvasRef.current, videoRef.current);
-        }
+        if (canvasRef.current && videoRef.current) {
+            if (flag === 'loading') {
+                setIsLoading(true);
+                canvasVideoScreenshot.create(canvasRef.current, videoRef.current);
+            }
 
-        if (flag === 'playing') {
-            setTimeout(() => {
-                setIsLoading(false);
-            }, 1000);
-            canvasVideoScreenshot.remove(canvasRef.current);
+            if (flag === 'playing') {
+                canvasVideoScreenshot.remove(canvasRef.current, () => {
+                    setIsLoading(false);
+                });
+            }
         }
     }
 
@@ -165,15 +166,13 @@ const MediaDevicesCam: React.FC = () => {
         try {
             const stream = await mediaDevice?.toggleVideoFacingMode();
             if (stream) {
-
                 const streamFacingMode = mediaDevice?.getStreamFacingMode() || '';
                 playStreamToVideo(stream);
                 setFacingMode(streamFacingMode);
             }
         } catch (error) {
             console.error('Error toggling camera facing mode.', error);
-        } finally {
-            setIsLoading(false);
+            videoSwitchStreams('playing');
         }
     };
 
