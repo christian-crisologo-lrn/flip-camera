@@ -2,13 +2,11 @@
     position: relative;
     min-width: 380px;
     min-height: 285px;
-    width: 380px; /* Set a fixed width */
-    height: 285px; /* Set a fixed height */
+    width: 380px;
+    height: 285px;
 }
 
 video {
-    /* width: 100%;
-    height: 100%; */
     min-width: 380px;
     min-height: 285px;
     object-fit: cover; /* Ensure the video covers the entire container */
@@ -18,8 +16,25 @@ canvas {
     width: 100%;
     height: 100%;
     pointer-events: none; /* Ensure the canvas does not block video interactions */
-    position: 'absolute';
+    position: absolute;
     top: 0;
     left: 0;
-    display: 'none';
+    display: none;
+}
+
+/* Media query for mobile devices */
+@media (max-width: 480px) {
+    .video-container {
+        min-width: 100%;
+        min-height: auto;
+        width: 100%;
+        height: auto;
+    }
+
+    video, canvas {
+        min-width: 100%;
+        min-height: auto;
+        width: 100%;
+        height: auto;
+    }
 }
