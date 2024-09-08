@@ -1,12 +1,12 @@
 import './App.css';
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import Logs from './components/Logs';
 import MediaDevicesCam from './components/MediaDevicesCam';
 import ReactWebCam from './components/ReactWebCamVendor';
 import BasicCamera from './components/BasicCamera';
-import { fetchLatestCommitHash } from './services/github';
 import CameraSelector from './components/CameraSelector';
 import { useLog } from './hooks/LogContext';
+import VersionBox from './components/VersionBox';
 
 const cameraOptions = ['BasicCamera', 'ReactWebCam', 'MediaDevicesCam'];
 
@@ -25,21 +25,12 @@ const CameraDisplay: React.FC<{ selected: string }> = ({ selected }) => {
 
 const App: React.FC = () => {
   const { clearLogs } = useLog();
-  const [hash, setHash] = useState<string>('');
   const [cameraOption, setCameraOption] = useState('MediaDevicesCam');
-
-  useEffect(() => {
-    const fetchAndSetHash = async () => {
-      const newHash = await fetchLatestCommitHash();
-      setHash(newHash.substring(1, 7));
-    };
-
-    fetchAndSetHash();
-  }, []);
 
   const onOptionChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     clearLogs();
     setCameraOption(e.target.value);
+    console.log('Camera option changed to:', e.target.value);
   };
 
   return (
@@ -49,8 +40,9 @@ const App: React.FC = () => {
         <CameraSelector selected={cameraOption} onOptionChange={onOptionChange} options={cameraOptions} />
         <CameraDisplay selected={cameraOption} />
         <Logs />
+        <VersionBox />
       </div>
-      <p className='min-w-[400px] mb-2 text-center text-gray-500 bg-black border border-gray-400 rounded text-xs p-1'>version : {hash}</p>
+
     </div>
   );
 };

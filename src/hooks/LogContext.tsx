@@ -1,12 +1,12 @@
 import React, { createContext, useState, useContext, ReactNode, useEffect } from 'react';
 
+
+// Store original console methods
+const originalLog = console.log;
+const originalError = console.error;
+const originalWarn = console.warn;
+
 export const overrideConsoleLogs = (callback: Function) => {
-
-  // Store original console methods
-  const originalLog = console.log;
-  const originalError = console.error;
-  const originalWarn = console.warn;
-
   // Override console methods
   window.console.log = console.log = function (...args: any[]) {
     originalLog.apply(console, args); // Call original method
@@ -64,5 +64,6 @@ export const useLog = (): LogContextProps => {
   if (!context) {
     throw new Error('useLog must be used within a LogProvider');
   }
+
   return context;
 };

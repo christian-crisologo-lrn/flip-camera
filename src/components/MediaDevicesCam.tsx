@@ -88,6 +88,21 @@ const MediaDevicesCam: React.FC = () => {
             videoElement.onseeked = () => setVideoStatus('seeked');
             videoElement.onseeking = () => setVideoStatus('seeking');
         }
+        return () => {
+            if (videoRef.current) {
+                videoRef.current.onwaiting = null;
+                videoRef.current.onplaying = null;
+                videoRef.current.onpause = null;
+                videoRef.current.onended = null;
+                videoRef.current.onerror = null;
+                videoRef.current.onloadeddata = null;
+                videoRef.current.oncanplay = null;
+                videoRef.current.oncanplaythrough = null;
+                videoRef.current.onstalled = null;
+                videoRef.current.onseeked = null;
+                videoRef.current.onseeking = null;
+            }
+        }
     }, []);
 
     const handleStreamError = (error: any) => {
@@ -201,7 +216,7 @@ const MediaDevicesCam: React.FC = () => {
                             playsInline
                             crossOrigin="anonymous"
                         />
-                        <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, display: 'none' }} />
+                        <canvas ref={canvasRef} />
                     </div>
                 </div>
             </div>
