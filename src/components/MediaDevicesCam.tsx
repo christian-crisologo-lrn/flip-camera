@@ -50,14 +50,15 @@ const MediaDevicesCam: React.FC = () => {
             setIsLoading(true);
             try {
                 const hasFacingModeSupport = await mediaDevice.checkToggleFacingModeSupport();
-                const stream = await mediaDevice.createStream();
 
-                setShowFlipCamera(hasFacingModeSupport);
+                console.log('MediaDevices - hasFacingModeSupport :', hasFacingModeSupport);
+
+                const stream = await mediaDevice.createStream();
 
                 if (stream) {
                     setCameraDevices(mediaDevice.videoDevices);
                     playStreamToVideo(stream);
-                    setShowFlipCamera(mediaDevice.canToggleVideoFacingMode);
+                    setShowFlipCamera(hasFacingModeSupport);
                 }
             } catch (error: any) {
                 handleStreamError(error);

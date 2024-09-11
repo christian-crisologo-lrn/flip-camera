@@ -142,7 +142,7 @@ class MediaDevices {
             // then it supports the toggling of camera user to environment
             this.canToggleVideoFacingMode = hasEnvironmentSupport && this.videoDevices.length > 1;
 
-            console.log('MediaDevices - canToggleVideoFacingMode :', canToggleVideoFacingMode);
+            console.log('MediaDevices - canToggleVideoFacingMode :', this.canToggleVideoFacingMode);
 
             return this.canToggleVideoFacingMode;
 
