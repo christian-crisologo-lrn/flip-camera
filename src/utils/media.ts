@@ -49,6 +49,7 @@ class MediaDevices {
     }
 
     stopStream(stream = null) {
+        console.log('MediaDevices - stopStream :' );
         const streamToStop = stream || this.stream;
 
         // stop all tracks
@@ -60,6 +61,7 @@ class MediaDevices {
     }
 
     getFacingMode() {
+        console.log('MediaDevices - getFacingMode :' );
         if (this.stream) {
             const videoTrack = this.stream.getVideoTracks()[0];
             const settings = videoTrack.getSettings();
@@ -77,18 +79,21 @@ class MediaDevices {
     }
 
     async createStream(constraints = null) {
+        console.log('MediaDevices - createStream:', constraints);
         this.updateConstraints(constraints);
 
         // stop all streams before starting a new one
         this.stopStream();
 
         try {
+
             const stream = await navigator.mediaDevices.getUserMedia(this.constraints);
 
             this.stream = stream;
 
             return stream;
         } catch (err) {
+            console.log('MediaDevices - stream : ', JSON.stringify(err));
             this.onUserMediaError(err);
 
             return null;
@@ -96,10 +101,12 @@ class MediaDevices {
     }
 
     toggleVideoFacingMode(constraints = null) {
+        console.log('MediaDevices - toggleVideoFacingMode :' );
         this.updateConstraintFacingMode(constraints);
 
         if (this.stream) {
             this.constraints.video.facingMode = this.constraints.video.facingMode === 'user' ? 'environment' : 'user';
+            console.log('MediaDevices - new facingMode : ', JSON.stringify(this.constraints.video ));
 
             return this.createStream(this.constraints);
         } else {
@@ -108,6 +115,8 @@ class MediaDevices {
     };
 
     async checkToggleFacingModeSupport() {
+        console.log('MediaDevices - checkToggleFacingModeSupport :' );
+
         if (!this.isSupported()) {
             return false;
         }
@@ -117,6 +126,7 @@ class MediaDevices {
             const facingMode = 'environment';
             const hasEnvironmentSupport = await this.hasFacingModeSupport(facingMode);
             const devices = await this.getCameraDevices();
+            console.log('MediaDevices - hasEnvironmentSupport  :', facingMode, hasEnvironmentSupport);
 
             this.videoDevices = devices.map(device => {
                 return {
@@ -126,10 +136,13 @@ class MediaDevices {
                     facingMode: ''
                 };
             });
+            console.log('MediaDevices - devices found :', devices);
 
             // if video device supports `environment` and it's more than 1 device
             // then it supports the toggling of camera user to environment
             this.canToggleVideoFacingMode = hasEnvironmentSupport && this.videoDevices.length > 1;
+
+            console.log('MediaDevices - canToggleVideoFacingMode :', canToggleVideoFacingMode);
 
             return this.canToggleVideoFacingMode;
 
@@ -142,14 +155,19 @@ class MediaDevices {
 
     async hasFacingModeSupport(facingMode) {
         const constraints = { video: { facingMode } };
+        console.log('MediaDevices - hasFacingModeSupport :', facingMode);
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
 
             this.stopStream(stream);
 
+            console.log('MediaDevices - hasFacingModeSupport success');
+
             return true;
         } catch (error) {
+            console.log('MediaDevices - hasFacingModeSupport failed');
+
             return false;
         }
     }
