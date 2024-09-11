@@ -155,7 +155,7 @@ class MediaDevices {
 
     async hasFacingModeSupport(facingMode) {
         const constraints = { video: { facingMode } };
-        console.log('MediaDevices - hasFacingModeSupport :', facingMode);
+        console.log('MediaDevices - hasFacingModeSupport :', JSON.stringify(constraints));
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
