@@ -51,7 +51,7 @@ const MediaDevicesCam: React.FC = () => {
             try {
                 const hasFacingModeSupport = await mediaDevice.checkToggleFacingModeSupport();
 
-                console.log('MediaDevices - hasFacingModeSupport :', hasFacingModeSupport);
+                console.log('MediaDevices - hasFacingModeSupport :' + JSON.stringify(hasFacingModeSupport));
 
                 const stream = await mediaDevice.createStream();
 
@@ -111,7 +111,7 @@ const MediaDevicesCam: React.FC = () => {
     }, []);
 
     const handleStreamError = (error: any) => {
-        console.error('Error accessing media devices.', error);
+        console.error('Error accessing media devices.' + JSON.stringify(error));
         setIsLoading(false);
         switch (error.name) {
             case 'NotAllowedError':
@@ -191,7 +191,7 @@ const MediaDevicesCam: React.FC = () => {
                 setFacingMode(streamFacingMode);
             }
         } catch (error) {
-            console.error('Error toggling camera facing mode.', error);
+            console.error('Error toggling camera facing mode.' + JSON.stringify(error));
             videoSwitchStreams('playing');
         }
     };
@@ -240,6 +240,13 @@ const MediaDevicesCam: React.FC = () => {
                         {isRecording ? 'Stop Recording' : 'Start Recording'}
                     </button>
                 </div>
+
+                <InfoDisplay
+                    currentStream={currentStream}
+                    facingMode={facingMode}
+                    videoPlayingStatus={videoPlayingStatus}
+                    cameraDevices={cameraDevices}
+                />
                 {showFlipCamera && (
                     <button
                         onClick={toggleCamera}
@@ -248,12 +255,6 @@ const MediaDevicesCam: React.FC = () => {
                         Flip Camera
                     </button>
                 )}
-                <InfoDisplay
-                    currentStream={currentStream}
-                    facingMode={facingMode}
-                    videoPlayingStatus={videoPlayingStatus}
-                    cameraDevices={cameraDevices}
-                />
             </div>
         </div>
     );
