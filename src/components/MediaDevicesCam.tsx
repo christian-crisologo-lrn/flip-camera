@@ -49,7 +49,11 @@ const MediaDevicesCam: React.FC = () => {
 
             setIsLoading(true);
             try {
-                const stream = await mediaDevice.initStream();
+                const hasFacingModeSupport = await mediaDevice.checkToggleFacingModeSupport();
+                const stream = await mediaDevice.createStream();
+
+                setShowFlipCamera(hasFacingModeSupport);
+
                 if (stream) {
                     setCameraDevices(mediaDevice.videoDevices);
                     playStreamToVideo(stream);
@@ -181,7 +185,7 @@ const MediaDevicesCam: React.FC = () => {
         try {
             const stream = await mediaDevice?.toggleVideoFacingMode();
             if (stream) {
-                const streamFacingMode = mediaDevice?.getStreamFacingMode() || '';
+                const streamFacingMode = mediaDevice?.getFacingMode();
                 playStreamToVideo(stream);
                 setFacingMode(streamFacingMode);
             }
