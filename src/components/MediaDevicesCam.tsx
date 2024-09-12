@@ -1,4 +1,3 @@
-// @ts-ignore
 import React, { useEffect, useRef, useState } from 'react';
 import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
@@ -197,16 +196,11 @@ const MediaDevicesCam: React.FC = () => {
         }
     };
 
-    const videoProps: any = {
-        crossOrigin: 'true'
-    }
-
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
         { 'bg-blue-500 hover:bg-blue-600': !isRecording },
         'mt-4 text-white font-bold py-2 px-4 rounded bg-green-400',
     );
-
 
     return (
         <div className="container p-2 align-center">
@@ -225,7 +219,7 @@ const MediaDevicesCam: React.FC = () => {
                             height={285}
                             autoPlay
                             playsInline
-                            {...videoProps}
+                            crossOrigin="anonymous"
                         />
                         <canvas ref={canvasRef} />
                     </div>
