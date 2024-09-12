@@ -219,7 +219,7 @@ const MediaDevicesCam: React.FC = () => {
                             height={285}
                             autoPlay
                             playsInline
-                            crossOrigin="anonymous"
+                            crossOrigin="true"
                         />
                         <canvas ref={canvasRef} />
                     </div>
