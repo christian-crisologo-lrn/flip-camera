@@ -1,3 +1,4 @@
+// @ts-ignore
 import React, { useEffect, useRef, useState } from 'react';
 import classname from 'classnames';
 import RecordRTC, { invokeSaveAsDialog } from 'recordrtc';
@@ -205,6 +206,7 @@ const MediaDevicesCam: React.FC = () => {
         { 'bg-blue-500 hover:bg-blue-600': !isRecording },
         'mt-4 text-white font-bold py-2 px-4 rounded bg-green-400',
     );
+
 
     return (
         <div className="container p-2 align-center">
