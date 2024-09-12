@@ -196,6 +196,10 @@ const MediaDevicesCam: React.FC = () => {
         }
     };
 
+    const videoProps: any = {
+        crossOrigin: 'true'
+    }
+
     const recordBtnCls = classname(
         { 'bg-red-500 hover:bg-red-600': isRecording },
         { 'bg-blue-500 hover:bg-blue-600': !isRecording },
@@ -219,7 +223,7 @@ const MediaDevicesCam: React.FC = () => {
                             height={285}
                             autoPlay
                             playsInline
-                            crossOrigin="true"
+                            {...videoProps}
                         />
                         <canvas ref={canvasRef} />
                     </div>
