@@ -126,7 +126,7 @@ class MediaDevices {
             const facingMode = 'environment';
             const hasEnvironmentSupport = await this.hasFacingModeSupport(facingMode);
             const devices = await this.getCameraDevices();
-            console.log('MediaDevices - hasEnvironmentSupport  :' + JSON.stringify( facingMode, hasEnvironmentSupport));
+            console.log('MediaDevices - hasEnvironmentSupport  :' + facingMode + ' ' + hasEnvironmentSupport);
 
             this.videoDevices = devices.map(device => {
                 return {
@@ -136,7 +136,7 @@ class MediaDevices {
                     facingMode: ''
                 };
             });
-            console.log('MediaDevices - devices found :' + JSON.stringify( devices));
+            console.log('MediaDevices - devices found :' + JSON.stringify( videoDevices));
 
             // if video device supports `environment` and it's more than 1 device
             // then it supports the toggling of camera user to environment
@@ -173,6 +173,7 @@ class MediaDevices {
     }
 
     async getCameraDevices() {
+        console.log('MediaDevices - getCameraDevices');
         try {
             const devices = await navigator.mediaDevices.enumerateDevices();
 
