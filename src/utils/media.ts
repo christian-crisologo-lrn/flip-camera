@@ -79,14 +79,14 @@ class MediaDevices {
     }
 
     async createStream(constraints = null) {
-        console.log('MediaDevices - createStream:' + JSON.stringify(constraints));
+        console.log('MediaDevices - createStream: ' + JSON.stringify(constraints));
         this.updateConstraints(constraints);
 
         // stop all streams before starting a new one
         this.stopStream();
 
         try {
-            console.log('MediaDevices - start to stream:' + JSON.stringify(this.constraints));
+            console.log('MediaDevices - start to stream: ' + JSON.stringify(this.constraints));
             const stream = await navigator.mediaDevices.getUserMedia(this.constraints);
 
             this.stream = stream;
@@ -133,7 +133,7 @@ class MediaDevices {
             const hasEnvironmentSupport = await this.hasFacingModeSupport(facingMode);
             const devices = await this.getCameraDevices();
 
-            console.log('MediaDevices - hasEnvironmentSupport  :' + facingMode + ' ' + hasEnvironmentSupport);
+            console.log('MediaDevices - hasEnvironmentSupport  : ' + facingMode + ' ' + hasEnvironmentSupport);
             console.log('MediaDevices - devices found : ' + JSON.stringify(devices));
 
             this.videoDevices = devices.map(device => {
@@ -165,9 +165,11 @@ class MediaDevices {
     }
 
     async hasFacingModeSupport(facingMode) {
-        const constraints = { video: { facingMode } };
+        const constraints = { video: { facingMode }, audio: false };
 
-        console.log('MediaDevices - hasFacingModeSupport :' + JSON.stringify(JSON.stringify(constraints)));
+        console.log('MediaDevices - hasFacingModeSupport : ' + JSON.stringify(constraints));
+
+        this.stopStream(stream);
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
