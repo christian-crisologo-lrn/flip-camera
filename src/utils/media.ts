@@ -131,24 +131,25 @@ class MediaDevices {
             // check if it supports the `environment` facingMode
             const facingMode = 'environment';
             const hasEnvironmentSupport = await this.hasFacingModeSupport(facingMode);
-            const devices = await this.getCameraDevices();
+            // const devices = await this.getCameraDevices();
 
             console.log('MediaDevices - hasEnvironmentSupport  : ' + facingMode + ' ' + hasEnvironmentSupport);
-            console.log('MediaDevices - devices found : ' + JSON.stringify(devices));
+            // console.log('MediaDevices - devices found : ' + JSON.stringify(devices));
 
-            this.videoDevices = devices.map(device => {
-                return {
-                    ...device,
-                    label: device.label,
-                    deviceId: device.deviceId,
-                    facingMode: ''
-                };
-            });
-            console.log('MediaDevices - filtered devices :' + JSON.stringify(this.videoDevices));
+            // this.videoDevices = devices.map(device => {
+            //     return {
+            //         ...device,
+            //         label: device.label,
+            //         deviceId: device.deviceId,
+            //         facingMode: ''
+            //     };
+            // });
+            // console.log('MediaDevices - filtered devices :' + JSON.stringify(this.videoDevices));
 
             // if video device supports `environment` and it's more than 1 device
             // then it supports the toggling of camera user to environment
-            this.canToggleVideoFacingMode = hasEnvironmentSupport && this.videoDevices.length > 1;
+            // this.canToggleVideoFacingMode = hasEnvironmentSupport && this.videoDevices.length > 1;
+            this.canToggleVideoFacingMode = hasEnvironmentSupport;
 
             console.log('MediaDevices - canToggleVideoFacingMode :' + JSON.stringify(this.canToggleVideoFacingMode));
 
