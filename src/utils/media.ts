@@ -79,14 +79,14 @@ class MediaDevices {
     }
 
     async createStream(constraints = null) {
-        console.log('MediaDevices - createStream: ' + JSON.stringify(constraints));
+        console.log('MediaDevices - createStream:' + JSON.stringify(constraints));
         this.updateConstraints(constraints);
 
         // stop all streams before starting a new one
         this.stopStream();
 
         try {
-            console.log('MediaDevices - start to stream: ' + JSON.stringify(this.constraints));
+            console.log('MediaDevices - start to stream:' + JSON.stringify(this.constraints));
             const stream = await navigator.mediaDevices.getUserMedia(this.constraints);
 
             this.stream = stream;
@@ -131,25 +131,14 @@ class MediaDevices {
             // check if it supports the `environment` facingMode
             const facingMode = 'environment';
             const hasEnvironmentSupport = await this.hasFacingModeSupport(facingMode);
-            // const devices = await this.getCameraDevices();
+            // #TODO : we can remove the enumeration of devices if we don't need to show the list of devices
 
-            console.log('MediaDevices - hasEnvironmentSupport  : ' + facingMode + ' ' + hasEnvironmentSupport);
-            // console.log('MediaDevices - devices found : ' + JSON.stringify(devices));
+            this.videoDevices = await this.getCameras();
 
-            // this.videoDevices = devices.map(device => {
-            //     return {
-            //         ...device,
-            //         label: device.label,
-            //         deviceId: device.deviceId,
-            //         facingMode: ''
-            //     };
-            // });
-            // console.log('MediaDevices - filtered devices :' + JSON.stringify(this.videoDevices));
+            console.log('MediaDevices - hasEnvironmentSupport  :' + facingMode + ' ' + hasEnvironmentSupport);
+            console.log('MediaDevices - devices found : ' + JSON.stringify(this.videoDevices));
 
-            // if video device supports `environment` and it's more than 1 device
-            // then it supports the toggling of camera user to environment
-            // this.canToggleVideoFacingMode = hasEnvironmentSupport && this.videoDevices.length > 1;
-            this.canToggleVideoFacingMode = hasEnvironmentSupport;
+            this.canToggleVideoFacingMode = hasEnvironmentSupport && this.videoDevices.length > 1;
 
             console.log('MediaDevices - canToggleVideoFacingMode :' + JSON.stringify(this.canToggleVideoFacingMode));
 
@@ -170,10 +159,13 @@ class MediaDevices {
 
         console.log('MediaDevices - hasFacingModeSupport : ' + JSON.stringify(constraints));
 
-        this.stopStream(stream);
+        // make sure to stop any existing stream before starting a new one
+        this.stopStream();
 
         try {
             const stream = await navigator.mediaDevices.getUserMedia(constraints);
+
+            console.log('MediaDevices - hasFacingModeSupport stream ' + JSON.stringify(stream));
 
             this.stopStream(stream);
 
@@ -182,24 +174,32 @@ class MediaDevices {
             return true;
         } catch (error) {
 
-            console.log('MediaDevices - hasFacingModeSupport failed');
+            console.log('MediaDevices - hasFacingModeSupport failed : ' + JSON.stringify(error));
 
             return false;
         }
     }
 
-    async getCameraDevices() {
-        console.log('MediaDevices - getCameraDevices');
+    async getCameras() {
+        console.log('MediaDevices - getCameras');
 
         try {
-            const devices = await navigator.mediaDevices.enumerateDevices();
+            const enumerateDevices = await navigator.mediaDevices.enumerateDevices();
 
-            console.log('MediaDevices - video devices :' + JSON.stringify(devices));
+            console.log('MediaDevices - video devices :' + JSON.stringify(enumerateDevices));
 
-            return devices.filter(device => device.kind === 'videoinput');
+            const filteredVideoInputs =  enumerateDevices.filter(device => device.kind === 'videoinput');
+
+            return filteredVideoInputs.map((device, index) => {
+                return {
+                    ...device,
+                    label: device.label || 'Camera - ' + index
+                };
+            });
+
         } catch (error) {
 
-            console.log('MediaDevices - getCameraDevices error :' + JSON.stringify(error));
+            console.log('MediaDevices - getCameras error :' + JSON.stringify(error));
 
             return [];
         }
